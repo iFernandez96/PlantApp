@@ -1,0 +1,129 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://plantapp.dev/schemas/plant-profile.schema.json",
+  "title": "PlantProfile",
+  "description": "Species-level catalog entry that drives data-driven care behavior.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "scientificName",
+    "commonNames",
+    "category",
+    "growthHabit",
+    "wateringProfile",
+    "feedingProfile",
+    "containerProfile",
+    "lightProfile",
+    "temperatureProfile",
+    "version"
+  ],
+  "properties": {
+    "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+    "scientificName": { "type": "string" },
+    "commonNames": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+    "category": {
+      "type": "string",
+      "enum": ["fruit", "vegetable", "herb", "ornamental", "vine", "root", "berry", "succulent", "other"]
+    },
+    "growthHabit": {
+      "type": "string",
+      "enum": ["bush", "vine", "trailing", "upright", "climbing", "rosette", "tree"]
+    },
+    "requiresSupport": { "type": "boolean", "default": false },
+    "selfFruitful": { "type": ["boolean", "null"] },
+    "pollinationPartnersRequired": { "type": "integer", "minimum": 0, "default": 0 },
+    "wateringProfile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["baseIntervalDays", "dryingTolerance"],
+      "properties": {
+        "baseIntervalDays": { "type": "number", "minimum": 0.25 },
+        "dryingTolerance": { "type": "string", "enum": ["low", "medium", "high"] },
+        "overwaterRisk": { "type": "string", "enum": ["low", "medium", "high"] },
+        "hotWeatherMultiplier": { "type": "number", "minimum": 0, "default": 1.0 },
+        "rainSkipThresholdMm": { "type": "number", "minimum": 0, "default": 5 }
+      }
+    },
+    "feedingProfile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["baseIntervalDays"],
+      "properties": {
+        "baseIntervalDays": { "type": "number", "minimum": 1 },
+        "fruitingIntervalDays": { "type": "number", "minimum": 1 },
+        "postHarvestIntervalDays": { "type": "number", "minimum": 1 },
+        "containerLeachAdjustment": { "type": "number", "default": 0.7 },
+        "preferredNpk": { "type": "string" }
+      }
+    },
+    "containerProfile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["recommendedMinLiters"],
+      "properties": {
+        "recommendedMinLiters": { "type": "number", "minimum": 0 },
+        "idealMinLiters": { "type": "number", "minimum": 0 },
+        "idealMaxLiters": { "type": "number", "minimum": 0 },
+        "soilMixTags": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "lightProfile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["targetSunHours"],
+      "properties": {
+        "targetSunHours": { "type": "number", "minimum": 0 },
+        "minSunHours": { "type": "number", "minimum": 0 },
+        "maxSunHours": { "type": "number", "minimum": 0 }
+      }
+    },
+    "temperatureProfile": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "coldHardyMinC": { "type": "number" },
+        "heatStressC": { "type": "number" },
+        "frostSensitive": { "type": "boolean", "default": false }
+      }
+    },
+    "seasonality": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "plantingWindowsByZone": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["startMonth", "endMonth"],
+              "properties": {
+                "startMonth": { "type": "integer", "minimum": 1, "maximum": 12 },
+                "endMonth": { "type": "integer", "minimum": 1, "maximum": 12 }
+              }
+            }
+          }
+        },
+        "productiveMonths": { "type": "array", "items": { "type": "integer", "minimum": 1, "maximum": 12 } },
+        "dormancyMonths": { "type": "array", "items": { "type": "integer", "minimum": 1, "maximum": 12 } }
+      }
+    },
+    "commonIssues": { "type": "array", "items": { "type": "string" } },
+    "verticalSuitability": { "type": "number", "minimum": 0, "maximum": 1 },
+    "source": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["citation"],
+        "properties": {
+          "citation": { "type": "string" },
+          "url": { "type": "string", "format": "uri" },
+          "field": { "type": "string" }
+        }
+      }
+    },
+    "version": { "type": "integer", "minimum": 1 },
+    "lastReviewedAt": { "type": "string", "format": "date" }
+  }
+}

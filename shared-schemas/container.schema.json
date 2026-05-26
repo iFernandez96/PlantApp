@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://plantapp.dev/schemas/container.schema.json",
+  "title": "Container",
+  "description": "A pot, barrel, planter, or self-watering vessel that holds a single PlantInstance. First-class because container constraints are central to small-space care reasoning.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "userId", "volumeLiters", "material", "drainage", "createdAt"],
+  "properties": {
+    "id": { "type": "string", "format": "uuid" },
+    "userId": { "type": "string" },
+    "name": { "type": "string", "maxLength": 80 },
+    "volumeLiters": { "type": "number", "exclusiveMinimum": 0, "maximum": 10000 },
+    "material": {
+      "type": "string",
+      "enum": ["terracotta", "plastic", "fabric", "glazed-ceramic", "wood", "metal", "self-watering", "other"]
+    },
+    "drainage": { "type": "string", "enum": ["good", "moderate", "poor"] },
+    "selfWatering": { "type": "boolean", "default": false },
+    "saucer": { "type": "boolean", "default": false },
+    "soilMix": { "type": "string", "maxLength": 200 },
+    "createdAt": { "type": "string", "format": "date-time" },
+    "updatedAt": { "type": "string", "format": "date-time" }
+  }
+}

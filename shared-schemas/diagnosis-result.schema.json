@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://plantapp.dev/schemas/diagnosis-result.schema.json",
+  "title": "DiagnosisResult",
+  "description": "Structured output from the AI plant-diagnosis flow.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "plantInstanceId", "status", "promptVersion", "model", "createdAt"],
+  "properties": {
+    "id": { "type": "string", "format": "uuid" },
+    "plantInstanceId": { "type": "string", "format": "uuid" },
+    "status": { "type": "string", "enum": ["ok", "out_of_scope", "schema_error", "unavailable"] },
+    "photos": {
+      "type": "array",
+      "items": { "type": "string", "description": "object-storage key, never a URL" }
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["label", "confidence", "evidence"],
+        "properties": {
+          "label": { "type": "string", "maxLength": 200 },
+          "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+          "evidence": { "type": "string", "maxLength": 1000 }
+        }
+      }
+    },
+    "suspectedCauses": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["cause", "confidence"],
+        "properties": {
+          "cause": { "type": "string", "maxLength": 200 },
+          "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+          "explanation": { "type": "string", "maxLength": 1000 }
+        }
+      }
+    },
+    "recommendations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["summary", "urgency"],
+        "properties": {
+          "summary": { "type": "string", "maxLength": 500 },
+          "suggestedTaskKind": {
+            "type": "string",
+            "enum": ["water", "feed", "prune", "repot", "scout-pests", "harvest", "support", "rotate", "seasonal-prep"]
+          },
+          "urgency": { "type": "string", "enum": ["low", "normal", "high", "urgent"] },
+          "rationale": { "type": "string", "maxLength": 1000 }
+        }
+      }
+    },
+    "caveats": { "type": "array", "items": { "type": "string", "maxLength": 500 } },
+    "promptVersion": { "type": "string" },
+    "model": { "type": "string" },
+    "latencyMs": { "type": "integer", "minimum": 0 },
+    "createdAt": { "type": "string", "format": "date-time" }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "status": { "const": "out_of_scope" } } },
+      "then": {
+        "properties": {
+          "recommendations": { "maxItems": 0 }
+        }
+      }
+    }
+  ]
+}

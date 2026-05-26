@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://plantapp.dev/schemas/garden-space.schema.json",
+  "title": "GardenSpace",
+  "description": "A bounded physical area where the user keeps one or more PlantInstances (balcony, patio, window ledge, vertical rack, etc.). First-class because microclimate and dimensions drive both care and layout decisions.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "userId", "name", "kind", "createdAt"],
+  "properties": {
+    "id": { "type": "string", "format": "uuid" },
+    "userId": { "type": "string" },
+    "name": { "type": "string", "maxLength": 80 },
+    "kind": {
+      "type": "string",
+      "enum": [
+        "balcony",
+        "patio",
+        "window-ledge",
+        "indoor-room",
+        "vertical-rack-zone",
+        "hanging-zone",
+        "grow-light-shelf",
+        "other"
+      ]
+    },
+    "indoor": { "type": "boolean", "default": false },
+    "postalCode": { "type": "string", "maxLength": 20, "description": "Zip/postal code. Default location proxy. Never store precise GPS by default." },
+    "countryCode": { "type": "string", "pattern": "^[A-Z]{2}$" },
+    "hardinessZone": { "type": "string", "maxLength": 8, "description": "Derived/cached from external source; not user-edited." },
+    "direction": { "type": "string", "enum": ["N", "NE", "E", "SE", "S", "SW", "W", "NW", "unknown"] },
+    "sunHoursEstimate": { "type": "number", "minimum": 0, "maximum": 24 },
+    "windExposure": { "type": "string", "enum": ["low", "medium", "high"] },
+    "shadeFraction": { "type": "number", "minimum": 0, "maximum": 1 },
+    "rainReaches": { "type": "boolean" },
+    "dimensionsCm": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "widthCm": { "type": "number", "minimum": 0 },
+        "depthCm": { "type": "number", "minimum": 0 },
+        "heightCm": { "type": "number", "minimum": 0 }
+      }
+    },
+    "photos": {
+      "type": "array",
+      "items": { "type": "string", "description": "object-storage key, never a URL" }
+    },
+    "createdAt": { "type": "string", "format": "date-time" },
+    "updatedAt": { "type": "string", "format": "date-time" }
+  }
+}

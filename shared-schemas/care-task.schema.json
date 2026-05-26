@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://plantapp.dev/schemas/care-task.schema.json",
+  "title": "CareTask",
+  "description": "A deterministic, engine-stamped task generated for a PlantInstance.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "plantInstanceId", "kind", "dueAt", "priority", "rationale", "engineVersion", "inputsHash", "sourceInputs", "status"],
+  "properties": {
+    "id": { "type": "string", "format": "uuid" },
+    "plantInstanceId": { "type": "string", "format": "uuid" },
+    "kind": {
+      "type": "string",
+      "enum": ["water", "feed", "prune", "repot", "scout-pests", "harvest", "support", "rotate", "seasonal-prep"]
+    },
+    "dueAt": { "type": "string", "format": "date-time" },
+    "priority": { "type": "string", "enum": ["low", "normal", "high", "urgent"] },
+    "rationale": { "type": "string", "maxLength": 2000 },
+    "rationaleMetadata": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "degraded": { "type": "boolean" },
+        "weatherAlertId": { "type": "string" },
+        "feedbackApplied": { "type": "array", "items": { "type": "string" } },
+        "originatingDiagnosisId": { "type": "string", "format": "uuid" }
+      }
+    },
+    "engineVersion": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+    "inputsHash": { "type": "string", "minLength": 8, "description": "SHA-256 of canonical-JSON(sourceInputs + referenced state). Reproducibility check." },
+    "sourceInputs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["plantInstanceId", "profileId", "profileVersion", "containerId", "gardenSpaceId", "clockUtc"],
+      "properties": {
+        "plantInstanceId": { "type": "string", "format": "uuid" },
+        "profileId": { "type": "string" },
+        "profileVersion": { "type": "integer", "minimum": 1 },
+        "containerId": { "type": "string", "format": "uuid" },
+        "gardenSpaceId": { "type": "string", "format": "uuid" },
+        "clockUtc": { "type": "string", "format": "date-time" },
+        "weatherWindowRef": { "type": ["string", "null"], "description": "Opaque id of the weather window record used; null when degraded or pre-weather-slice." },
+        "feedbackWindowRef": { "type": ["string", "null"], "description": "Opaque id of the feedback window considered; null when no feedback applied." }
+      }
+    },
+    "status": { "type": "string", "enum": ["pending", "done", "skipped", "dismissed"] },
+    "completedAt": { "type": "string", "format": "date-time" },
+    "feedback": {
+      "type": "string",
+      "enum": [
+        "on-time",
+        "early",
+        "late",
+        "soil-still-wet",
+        "plant-wilted",
+        "fertilizer-too-strong",
+        "skipped",
+        "watered-early"
+      ]
+    },
+    "createdAt": { "type": "string", "format": "date-time" }
+  }
+}

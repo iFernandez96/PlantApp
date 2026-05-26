@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://plantapp.dev/schemas/space-plan.schema.json",
+  "title": "SpacePlan",
+  "description": "Structured output from the AI space-optimizer flow. Must include horizontal AND vertical options.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "gardenSpaceId", "status", "options", "promptVersion", "model", "createdAt"],
+  "properties": {
+    "id": { "type": "string", "format": "uuid" },
+    "gardenSpaceId": { "type": "string", "format": "uuid" },
+    "status": { "type": "string", "enum": ["ok", "out_of_scope", "schema_error", "unavailable"] },
+    "inputs": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "photos": { "type": "array", "items": { "type": "string" } },
+        "dimensionsCm": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "widthCm": { "type": "number", "minimum": 0 },
+            "depthCm": { "type": "number", "minimum": 0 },
+            "heightCm": { "type": "number", "minimum": 0 }
+          }
+        },
+        "plantInstanceIds": { "type": "array", "items": { "type": "string", "format": "uuid" } }
+      }
+    },
+    "options": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["kind", "placements", "tradeoffs"],
+        "properties": {
+          "kind": { "type": "string", "enum": ["horizontal", "vertical", "hybrid"] },
+          "summary": { "type": "string", "maxLength": 500 },
+          "placements": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["plantInstanceId", "zone", "tier"],
+              "properties": {
+                "plantInstanceId": { "type": "string", "format": "uuid" },
+                "zone": { "type": "string", "maxLength": 80 },
+                "tier": { "type": "integer", "minimum": 0 },
+                "heightCm": { "type": "integer", "minimum": 0 },
+                "sunHoursEstimate": { "type": "number", "minimum": 0 },
+                "supportNeeded": { "type": "boolean" },
+                "notes": { "type": "string", "maxLength": 500 }
+              }
+            }
+          },
+          "tradeoffs": { "type": "array", "items": { "type": "string", "maxLength": 300 }, "minItems": 1 }
+        }
+      }
+    },
+    "verticalCapacityComputed": { "type": "boolean" },
+    "caveats": { "type": "array", "items": { "type": "string", "maxLength": 500 } },
+    "promptVersion": { "type": "string" },
+    "model": { "type": "string" },
+    "latencyMs": { "type": "integer", "minimum": 0 },
+    "createdAt": { "type": "string", "format": "date-time" }
+  }
+}
