@@ -123,6 +123,8 @@ The repo currently has no buildable code. As slices land, update this section.
 
 Slice 1 = "Add a plant in a container in a garden space, generate one deterministic care task." Exactly that. See `docs/slice-01-implementation-plan.md` for the in-scope BDD scenarios and `docs/slice-01-decision-log.md` for the architecture decisions awaiting owner approval. Out of scope until later slices: weather, feedback loop, feeding, advisories, AI, notifications, photos, precise location.
 
+**Care-engine lives only in the backend (TypeScript) for Slice 1** (decision log D-09). The Android app does **not** contain a `:care-engine` module in Slice 1; it reads tasks from the backend. A Kotlin port is added later when offline scheduling is required.
+
 ## What Claude must NOT do
 
 - Do not start implementation before the user approves the slice plan.

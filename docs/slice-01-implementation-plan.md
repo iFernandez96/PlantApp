@@ -61,13 +61,14 @@ Start with the **minimum** that respects clean architecture, defer the rest unti
 :app                composition root + theme + navigation
 :design-system      basic Material 3 tokens + a small set of components
 :domain             use cases, models (pure Kotlin)
-:care-engine        pure Kotlin engine (Slice 1 only computes initial water task)
 :data               Room + repository impls + DataStore
-:network            Ktor client + DTOs + schema validation
+:network            HTTP client + DTOs + schema validation
 :feature-inventory  the three Slice 1 screens
 ```
 
-Defer to later slices: `:notifications` (Slice 3), `:camera` (Slice 7), `:feature-care`, `:feature-diagnosis`, `:feature-space`.
+**No `:care-engine` Android module in Slice 1.** Per decision log D-09 the care-engine lives only in the backend (TypeScript) for Slice 1. Android reads tasks from the backend via `:network` and treats them as opaque domain values. A Kotlin port is deferred until offline scheduling/reminders are required (likely Slice 3 or 4); the port will be paired with a shared JSON test-vector suite to prevent cross-language drift.
+
+Defer to later slices: `:care-engine` (Kotlin port — Slice 3 or 4 when offline scheduling is needed), `:notifications` (Slice 3), `:camera` (Slice 7), `:feature-care`, `:feature-diagnosis`, `:feature-space`.
 
 ## Backend scope for Slice 1
 

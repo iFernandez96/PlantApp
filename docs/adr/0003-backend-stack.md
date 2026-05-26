@@ -19,7 +19,7 @@ We need a backend that:
   - Supabase Storage for photos, private buckets, signed URLs with short TTL.
   - Supabase Auth as the JWT issuer (OAuth + email magic link to start).
 - **API runtime:** **Node.js + TypeScript** API service deployable to a host that supports background jobs and outbound calls (e.g. Vercel Functions / Fly.io / Render — to be selected when first deploy lands). Kotlin/Ktor backend remains an option if we want Kotlin/JVM symmetry with the care-engine; deferred until we measure JS engine performance on care-engine table evaluations.
-- **Care-engine:** TypeScript module within the API repo. Pure functions, exhaustive unit tests, no DB access in the engine itself.
+- **Care-engine:** TypeScript module within the API repo. Pure functions, exhaustive unit tests, no DB access in the engine itself. **For Slice 1 this is the only implementation of the engine** (decision log D-09); Android reads tasks from the backend rather than computing them locally. A Kotlin port for Android offline scheduling is deferred to a later slice (likely Slice 3 or 4) and will share a JSON test-vector suite with the TypeScript engine to prevent drift.
 - **AI gateway:** TypeScript service module. Owns OpenAI SDK use, schema validation, retry, telemetry, quota.
 - **Notifications:** worker process that consumes a `due_tasks` queue/table and dispatches via FCM.
 - **Weather + USDA PHZM adapters:** thin TS modules with per-zip caching tables.
