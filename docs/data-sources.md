@@ -58,7 +58,7 @@ No species data is sourced from LLM hallucination. AI may suggest fields; an edi
 
 ### Supabase
 - Postgres: primary database. Row-level security per `userId` on every table.
-- Auth: provider choice TBD ADR-0003.
+- Auth: Supabase Auth, email magic link only for Slice 1 (per accepted decision D-05).
 - Storage: object storage for photos. Private buckets. Signed URLs with short TTL.
 
 ## 7. Sensors (future)

@@ -1,4 +1,4 @@
-# Slice 1 — Decision Log (Proposed)
+# Slice 1 — Decision Log
 
 Status: **Accepted (all entries)** — 2026-05-26
 Date opened: 2026-05-26

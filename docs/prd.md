@@ -59,7 +59,7 @@ Secondary users (post-MVP): other hobbyist container gardeners in apartments, co
 - **FR6** Notifications via FCM + local WorkManager fallback.
 - **FR7** AI photo diagnosis via backend gateway with structured JSON output.
 - **FR8** AI space optimizer via backend gateway with horizontal + vertical layout plans.
-- **FR9** Account/auth via Supabase (email or OAuth, TBD ADR).
+- **FR9** Account/auth via Supabase Auth, email magic link only for Slice 1 (per accepted decision D-05); other providers may arrive in later slices.
 - **FR10** Encrypted local storage of plant data; signed-URL photo storage.
 
 ## 7. Non-functional requirements

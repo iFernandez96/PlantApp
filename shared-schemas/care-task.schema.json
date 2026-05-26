@@ -27,7 +27,7 @@
       }
     },
     "engineVersion": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
-    "inputsHash": { "type": "string", "minLength": 8, "description": "SHA-256 of canonical-JSON(sourceInputs + referenced state). Reproducibility check." },
+    "inputsHash": { "type": "string", "minLength": 8, "description": "SHA-256 of canonical-JSON(sourceInputs). Reproducibility check." },
     "sourceInputs": {
       "type": "object",
       "additionalProperties": false,

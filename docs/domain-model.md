@@ -37,7 +37,7 @@ Schema: `shared-schemas/plant-profile.schema.json`.
 - `cultivar` (string, optional — e.g. "Cherokee Purple")
 - `containerId` → Container
 - `gardenSpaceId` → GardenSpace
-- `placement` (enum: floor, shelf, railing, hanging, trellis, vertical-rack)
+- `placement` (enum: floor, shelf, railing, hanging, trellis, vertical-rack, windowsill)
 - `placementHeightCm` (int, optional)
 - `acquiredAt` (date)
 - `plantedAt` (date)
@@ -68,17 +68,17 @@ Schema: `shared-schemas/container.schema.json`.
 Schema: `shared-schemas/garden-space.schema.json`.
 
 - `id`, `userId`, `name`
-- `kind` (enum: balcony, patio, window-ledge, indoor-room, vertical-rack-zone, hanging-zone, grow-light-shelf)
+- `kind` (enum: balcony, patio, window-ledge, indoor-room, vertical-rack-zone, hanging-zone, grow-light-shelf, other)
 - `location` — zip/postal code or coarse lat/lon (privacy-controlled)
 - `hardinessZone` (cached from USDA PHZM)
-- `direction` (enum: N, NE, E, SE, S, SW, W, NW)
-- `sunHoursEstimate` (int)
+- `direction` (enum: N, NE, E, SE, S, SW, W, NW, unknown)
+- `sunHoursEstimate` (number)
 - `windExposure` (enum: low, medium, high)
 - `shadeFraction` (0-1)
 - `rainReaches` (bool)
 - `dimensionsCm` ({widthCm, depthCm, heightCm})
 - `photos` (storageKey[])
-- `verticalCapacity` (bool, derived from dimensions/placement options)
+- `verticalCapacity` (derived at query time from `dimensionsCm` and supported placement options; not a stored field)
 
 ### CareTask
 

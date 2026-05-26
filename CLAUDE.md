@@ -36,7 +36,7 @@ No feature work begins without a Gherkin scenario in `features/`. Order of opera
 
 ## Test-first rule
 
-- Care-engine logic: pure-Kotlin unit tests with table-driven cases.
+- Care-engine logic: backend TypeScript unit tests with table-driven cases for Slice 1; a Kotlin port is added later only if offline scheduling requires it.
 - Android UI: Compose UI tests with semantics + screenshot tests where stable.
 - Backend: contract tests against the shared JSON schemas + integration tests.
 - AI: deterministic evaluation harness under `evals/` — golden inputs, scored outputs, regression on prompt or model change.
@@ -78,7 +78,7 @@ Before writing code that uses a framework, SDK, API, or platform feature, **chec
 
 - Jetpack Compose, Material 3, Room, DataStore, WorkManager, CameraX, Hilt, Navigation.
 - Firebase Cloud Messaging on Android 13+ notification permission semantics.
-- Retrofit / Ktor client APIs.
+- Retrofit + OkHttp client APIs (per D-02). Ktor is fallback-only if Kotlin Multiplatform is later adopted.
 - Supabase (Postgres, Auth, Storage, RLS).
 - OpenAI Responses API + structured outputs.
 - USDA Plant Hardiness Zone API, National Weather Service API, Open-Meteo.
@@ -94,8 +94,8 @@ features/              Gherkin .feature files — BDD source of truth
 shared-schemas/        JSON schemas shared by Android, backend, and AI outputs
 prompts/               System prompts for AI flows (versioned in-file)
 evals/                 AI evaluation harness, golden cases, scoring
-android/               (future) Android app — Kotlin, Compose, Hilt
-backend/               (future) Backend API, care-engine service, AI gateway
+android/               Android app — Kotlin, Compose, Hilt (scaffolded; Slice 1 modules only)
+backend/               Backend API, care-engine service, AI gateway (scaffolded; no production behavior yet)
 ```
 
 ## Commands (placeholders until code lands)
@@ -113,10 +113,12 @@ The repo currently has no buildable code. As slices land, update this section. T
 
 # Backend (Slice 1 — Node.js + TypeScript per D-01)
 # From backend/:
-#   npm test            unit + care-engine tests (incl. shared JSON test vectors)
-#   npm run test:int    integration tests against a local Postgres
+#   npm test                unit + care-engine tests (incl. shared JSON test vectors)
+#   npm run test:int        integration tests against a local Postgres
 #   npm run lint
+#   npm run typecheck
 #   npm run build
+#   npm run validate-schemas compile every shared-schemas/*.schema.json with Ajv
 
 # Supabase migrations (D-03)
 # From repo root:

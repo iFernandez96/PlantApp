@@ -97,6 +97,7 @@
             "type": "array",
             "items": {
               "type": "object",
+              "additionalProperties": false,
               "required": ["startMonth", "endMonth"],
               "properties": {
                 "startMonth": { "type": "integer", "minimum": 1, "maximum": 12 },
