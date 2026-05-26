@@ -1,0 +1,8 @@
+node_modules/
+dist/
+coverage/
+.vitest-temp/
+*.tsbuildinfo
+.env
+.env.*
+!.env.example
