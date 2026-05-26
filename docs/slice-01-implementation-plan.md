@@ -92,7 +92,7 @@ Defer to later slices: `:care-engine` (Kotlin port — Slice 3 or 4 when offline
   - `POST /containers`, `GET /containers`
   - `POST /plants`, `GET /plants`, `GET /plants/:id`, `DELETE /plants/:id`
   - `GET /plants/:id/tasks` (returns the current task set; Slice 1: at most one `water` task per plant)
-- The care-engine module is a pure TS (or Kotlin, per ADR-0003 pin) module called from `POST /plants` and `DELETE /plants` flows.
+- The care-engine module is a pure TypeScript module for Slice 1, called from `POST /plants` and `DELETE /plants` flows.
 
 ## Care-engine v0.1.0 rule (Slice 1 only)
 
@@ -142,18 +142,18 @@ These tests should be written **before** their respective implementations. Each 
 14. Baseline-induced hash difference: two otherwise-identical plants with different `lastWateredAt` values produce different `inputsHash` values and correspondingly different `dueAt` values.
 
 ### Repository / API integration tests (against a real Postgres)
-12. `POST /plants` with valid body creates the plant and emits one initial `CareTask`.
-13. Missing `containerId` → 400 with field-level error.
-14. Missing `gardenSpaceId` → 400.
-15. Unknown `profileId` → 400.
-16. RLS: user A cannot `GET /plants` belonging to user B; query returns empty / 403.
-17. `DELETE /plants/:id` removes the plant and its `CareTask` rows.
+15. `POST /plants` with valid body creates the plant and emits one initial `CareTask`.
+16. Missing `containerId` → 400 with field-level error.
+17. Missing `gardenSpaceId` → 400.
+18. Unknown `profileId` → 400.
+19. RLS: user A cannot `GET /plants` belonging to user B; query returns empty / 403.
+20. `DELETE /plants/:id` removes the plant and its `CareTask` rows.
 
 ### Android UI tests (Compose semantics)
-18. Empty state renders when no plants exist.
-19. Add-plant flow: filling all fields and submitting navigates to the detail screen showing the new plant.
-20. Detail screen shows the next task with kind "water", a rationale string, the `engineVersion` badge, and a `dueAt` formatted timestamp.
-21. Validation: submitting without container shows a field-level error and does not navigate.
+21. Empty state renders when no plants exist.
+22. Add-plant flow: filling all fields and submitting navigates to the detail screen showing the new plant.
+23. Detail screen shows the next task with kind "water", a rationale string, the `engineVersion` badge, and a `dueAt` formatted timestamp.
+24. Validation: submitting without container shows a field-level error and does not navigate.
 
 ## Architecture decisions to pin (proposed; awaiting approval)
 
