@@ -136,6 +136,24 @@ Slice 1 = "Add a plant in a container in a garden space, generate one determinis
 
 **Care-engine lives only in the backend (TypeScript) for Slice 1** (decision log D-09). The Android app does **not** contain a `:care-engine` module in Slice 1; it reads tasks from the backend. A Kotlin port is added later when offline scheduling is required.
 
+## Project subagents
+
+The repository ships seven project-level Claude Code subagents under `.claude/agents/`. They are read-only reviewers — they inspect the working tree and return findings; they never edit, write, commit, or push. The main Claude session remains responsible for all edits, commits, and pushes unless the owner explicitly approves otherwise.
+
+| Subagent | Purpose |
+|---|---|
+| `repo-guardian` | Slice scope, git hygiene, commit/push cadence, no accidental production behavior, no secrets/photos/location fixtures committed. |
+| `docs-consistency-auditor` | README/CLAUDE/docs/ADRs/roadmap/Slice 1 plan agree on phase, scaffolding status, accepted decisions, Slice 1 scope. |
+| `backend-scaffold-reviewer` | `backend/` — strict TS, script alignment, no HTTP server / Supabase client / care-engine rules / production behavior yet. |
+| `android-scaffold-reviewer` | `android/` — only Slice 1 modules, accepted network stack, no Slice-1 forbidden deps (CameraX, FCM, WorkManager, AI SDKs), wrapper situation clear. |
+| `schema-contract-reviewer` | Shared JSON Schemas, domain model, slice plan, and BDD agree on PlantProfile / PlantInstance / Container / GardenSpace / CareTask and the watering-baseline contract. |
+| `privacy-security-reviewer` | Slice 1 privacy posture: no photos, no precise GPS, no camera/notification permissions, no LLM SDKs on Android, no secrets. |
+| `bdd-qa-reviewer` | Gherkin quality, Slice 1 behavior coverage, observable Then-steps, correct `@slice-N` tagging, negative scenarios present. |
+
+**When to run them.** After any scaffolding or implementation change that touches their scope, and always before starting the next slice. Run the relevant subagents *before* asking the owner to approve a slice transition.
+
+Subagents use the `sonnet` model and read-only tools (`Read, Grep, Glob, Bash`). They are invoked through the Agent tool.
+
 ## What Claude must NOT do
 
 - Do not start implementation before the user approves the slice plan.
