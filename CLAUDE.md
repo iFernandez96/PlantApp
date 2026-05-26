@@ -100,28 +100,39 @@ backend/               (future) Backend API, care-engine service, AI gateway
 
 ## Commands (placeholders until code lands)
 
-The repo currently has no buildable code. As slices land, update this section.
+The repo currently has no buildable code. As slices land, update this section. The stack below reflects the accepted Slice 1 decisions (D-01 … D-12).
 
 ```bash
-# Android (future)
+# Android (Slice 1 — Retrofit + OkHttp + kotlinx.serialization stack per D-02)
 ./gradlew :app:assembleDebug
 ./gradlew :app:testDebugUnitTest
 ./gradlew :app:connectedDebugAndroidTest
-./gradlew :care-engine:test
+# Note: no :care-engine Android module in Slice 1 (D-09).
+# A Kotlin port may appear in Slice 3 or 4 if offline scheduling is needed;
+# at that point: ./gradlew :care-engine:test
 
-# Backend (future, exact runner TBD by ADR-0003)
-# e.g. pnpm test  |  npm test  |  uv run pytest
+# Backend (Slice 1 — Node.js + TypeScript per D-01)
+# From backend/:
+#   npm test            unit + care-engine tests (incl. shared JSON test vectors)
+#   npm run test:int    integration tests against a local Postgres
+#   npm run lint
+#   npm run build
+
+# Supabase migrations (D-03)
+# From repo root:
+#   supabase migration list
+#   supabase migration up
 
 # BDD feature lint
 # (TBD — gherkin-lint or cucumber dry-run once a runner is chosen)
 
-# AI evaluations
+# AI evaluations (Slice 7+)
 # (TBD — see docs/ai-evaluation-plan.md)
 ```
 
 ## Slice 1 scope (locked)
 
-Slice 1 = "Add a plant in a container in a garden space, generate one deterministic care task." Exactly that. See `docs/slice-01-implementation-plan.md` for the in-scope BDD scenarios and `docs/slice-01-decision-log.md` for the architecture decisions awaiting owner approval. Out of scope until later slices: weather, feedback loop, feeding, advisories, AI, notifications, photos, precise location.
+Slice 1 = "Add a plant in a container in a garden space, generate one deterministic care task." Exactly that. See `docs/slice-01-implementation-plan.md` for the in-scope BDD scenarios. Decisions D-01 through D-12 in `docs/slice-01-decision-log.md` were **accepted on 2026-05-26** and are reflected in ADR-0002 and ADR-0003. Out of scope until later slices: weather, feedback loop, feeding, advisories, AI, notifications, photos, precise location.
 
 **Care-engine lives only in the backend (TypeScript) for Slice 1** (decision log D-09). The Android app does **not** contain a `:care-engine` module in Slice 1; it reads tasks from the backend. A Kotlin port is added later when offline scheduling is required.
 

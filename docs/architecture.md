@@ -8,7 +8,7 @@ Status: Draft v0.1 — 2026-05-26
 ┌──────────────────────────────────────────────────────────────────┐
 │                       Android App (Kotlin)                       │
 │  Compose UI · Hilt · Room (local cache) · DataStore · WorkManager│
-│  CameraX · FCM client · Retrofit/Ktor HTTP client                │
+│  CameraX (Slice 7) · FCM client (Slice 3) · Retrofit + OkHttp    │
 └───────────────┬──────────────────────────────────────────────────┘
                 │ HTTPS (REST + signed photo URLs)
                 ▼
@@ -110,7 +110,7 @@ Modules grow per slice. Targets at the end of MVP; Slice 1 starts with the **min
 
 ## 8. Tech-stack summary (subject to ADRs)
 
-- Android: Kotlin, Jetpack Compose, Material 3, Room, DataStore, WorkManager, CameraX, Hilt, Retrofit or Ktor client.
-- Backend: Supabase (Postgres, Auth, Storage) + a thin API layer (runtime TBD in ADR-0003).
-- AI: OpenAI Responses API with structured outputs; gateway-only.
-- Observability: structured logs + metrics; no PII or photo bytes.
+- Android: Kotlin, Jetpack Compose, Material 3, Room, DataStore, Hilt, **Retrofit + OkHttp + kotlinx.serialization** (D-02). WorkManager arrives in Slice 3 alongside notifications; CameraX in Slice 7 alongside photo diagnosis.
+- Backend: Supabase (Postgres, Auth, Storage) + a thin API layer on **Node.js + TypeScript** (D-01). Migrations via the Supabase migrations CLI (D-03). Background-job runner deferred (D-04). Hosting deferred until the first device-reachable deployment (D-08).
+- AI gateway: built in Slice 7; OpenAI Responses API with structured outputs; backend-only caller.
+- Observability: structured logs + metrics; no PII or photo bytes. Crash reporting deferred to Slice 3 (D-07).

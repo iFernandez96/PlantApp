@@ -25,19 +25,29 @@ We need a modern Android stack that gives us fast UI iteration, strong testing p
 
 ## Module layout
 
+Slice 1 ships only the modules marked **(Slice 1)** below. The rest are reserved names that will appear in their named slice; they are not created in Slice 1.
+
 ```
-:app                       composition root
-:design-system             tokens, components, theming
-:domain                    use cases, models, ports (pure Kotlin)
-:data                      Room, DataStore, repository impls
-:care-engine               pure Kotlin (mirrors backend module; MVP server-authoritative)
-:network                   Ktor client, DTOs, schema validation
-:notifications             FCM + WorkManager schedulers
-:camera                    CameraX wrappers, EXIF stripping
-:feature-inventory
-:feature-care
-:feature-diagnosis
-:feature-space
+:app                       (Slice 1) composition root
+:design-system             (Slice 1) tokens, components, theming
+:domain                    (Slice 1) use cases, models, ports (pure Kotlin)
+:data                      (Slice 1) Room, DataStore, repository impls
+:network                   (Slice 1) Retrofit + OkHttp + kotlinx.serialization
+                                     converter, DTOs, schema-validation tests
+:feature-inventory         (Slice 1) the three Slice 1 screens
+
+:notifications             (Slice 3) FCM + WorkManager schedulers
+:feature-care              (Slice 3+)
+:camera                    (Slice 7) CameraX wrappers, EXIF stripping
+:feature-diagnosis         (Slice 7)
+:feature-space             (Slice 8)
+:care-engine               (Deferred — NOT a Slice 1 Android module.) Per
+                           decision log D-09 the care-engine is backend-only
+                           for Slice 1. A pure-Kotlin Android port is added
+                           only if/when offline scheduling/reminders require
+                           local computation (likely Slice 3 or 4); the port
+                           will share a JSON test-vector suite with the
+                           TypeScript engine to prevent drift.
 ```
 
 ## Alternatives considered

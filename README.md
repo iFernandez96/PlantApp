@@ -9,13 +9,13 @@ Android-first container-garden intelligence app for small spaces — condos, bal
 | Area | State |
 |---|---|
 | Product, architecture, domain, SDLC, privacy, AI, data-source docs | ✅ in `docs/` |
-| Architecture Decision Records | ✅ in `docs/adr/` (some pins still awaiting owner approval) |
+| Architecture Decision Records | ✅ in `docs/adr/` (all Slice 1 pins accepted 2026-05-26) |
 | Gherkin feature files (BDD source of truth) | ✅ in `features/`, tagged by slice |
 | Shared JSON Schemas (cross-boundary contracts) | ✅ in `shared-schemas/` |
 | Versioned AI system prompts | ✅ in `prompts/` |
 | AI evaluation suite scaffolds | ✅ in `evals/` |
 | Slice 1 implementation plan | ✅ in `docs/slice-01-implementation-plan.md` |
-| Slice 1 decision log (12 pins) | ✅ in `docs/slice-01-decision-log.md` — **awaiting owner approval** |
+| Slice 1 decision log (D-01 … D-12) | ✅ in `docs/slice-01-decision-log.md` — **all twelve accepted 2026-05-26** |
 | Android module skeleton | ❌ not initialized |
 | Backend module skeleton | ❌ not initialized |
 | CI | ❌ not configured |
@@ -44,16 +44,16 @@ evals/                   AI evaluation harness scaffolds (per flow).
 
 ## Current phase
 
-**Pre-Slice 1 implementation.** Awaiting owner approval of the 12 proposed decisions (D-01 … D-12) in `docs/slice-01-decision-log.md` before any Android or backend code is written.
+**Pre-Slice 1 scaffolding.** All twelve Slice 1 decisions (D-01 … D-12) were accepted on 2026-05-26. The accepted pins are reflected in ADR-0002, ADR-0003, and `docs/slice-01-implementation-plan.md`. The next step is a final docs-consistency sweep, then initializing the empty Android and backend module skeletons (no production code yet).
 
 ## Next step
 
-1. Read `docs/slice-01-implementation-plan.md` and `docs/slice-01-decision-log.md`.
-2. Approve or modify each of D-01 through D-12.
-3. Once approved, those decisions will be reflected in ADR-0002 and ADR-0003 and Slice 1 implementation may begin.
+1. Sync any remaining stale wording in the foundation docs to the accepted decisions.
+2. Initialize Slice 1 scaffolding: backend Node.js/TypeScript project skeleton, Supabase migrations folder, Android Gradle multi-module skeleton (`:app`, `:design-system`, `:domain`, `:data`, `:network`, `:feature-inventory`), root task runner. **Build files and empty modules only — no business logic.**
+3. After scaffolding is reviewed, begin Slice 1 implementation per `docs/slice-01-implementation-plan.md`.
 
-## ⚠️ Do not implement production code yet
+## ⚠️ Do not implement production behavior yet
 
-No Android or backend production code is to be written until the 12 Slice 1 decisions are explicitly approved. The current repo is a contract — code follows after the contract is locked.
+Decisions are locked but the code is not. The current repo remains a contract; scaffolding (build files + empty modules) lands next, followed by Slice 1 implementation only after the scaffolding is reviewed.
 
 See `docs/repo-hygiene.md` for branch strategy, commit style, and the PR checklist.

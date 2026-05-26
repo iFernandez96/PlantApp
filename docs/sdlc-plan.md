@@ -43,7 +43,7 @@ Status: Draft v0.1 — 2026-05-26
 
 ## 5. Branching and PRs
 
-- `main` is always shippable.
+- `master` is always shippable. (Default branch is `master` in this repo; see `docs/repo-hygiene.md`.)
 - Branch per slice: `slice/<n>-<short-name>`.
 - PR template references the `.feature` file and the relevant docs/ADR.
 - Required checks: unit tests, engine tests, lint, schema validation, AI evals (when prompts touched).
@@ -59,7 +59,7 @@ Status: Draft v0.1 — 2026-05-26
 | Layer | Where | What |
 |---|---|---|
 | Schema | `shared-schemas/` | JSON Schema lint + cross-language round-trip |
-| Care engine | `:care-engine` / backend `care-engine/` | Pure functions, table-driven, property-based for date math |
+| Care engine | backend `care-engine/` (Slice 1, per D-09); Android `:care-engine` appears later **only if** offline scheduling/reminders require a Kotlin port (likely Slice 3 or 4), paired with a shared JSON test-vector suite | Pure functions, table-driven, property-based for date math |
 | Backend API | `backend/` | Contract tests against schemas + integration with Postgres |
 | Android unit | `:domain`, `:data` | Use-case and repository tests |
 | Android UI | `:feature-*` | Compose semantics tests, screenshot tests where stable |
@@ -70,12 +70,12 @@ Status: Draft v0.1 — 2026-05-26
 
 - Structured logs: event name + ids + decision metadata. No raw photo bytes, no location strings, no plant nicknames in logs.
 - Metrics: reminder dispatch latency, reminder relevance %, AI latency, AI schema-fail rate, eval regression count.
-- Crash reporting: Firebase Crashlytics with PII filters; or self-hosted Sentry — TBD ADR.
+- Crash reporting: **deferred to Slice 3** per decision log D-07. Slice 1 ships in-app only on a single device, so manual capture is acceptable until notifications arrive. The concrete choice (Crashlytics with PII filters vs Sentry) is made when Slice 3 begins.
 
 ## 9. Release cadence
 
 - Slice-based releases. No fixed sprint. A slice is done when DOD is met.
-- Pre-release on every merge to `main` (internal track).
+- Pre-release on every merge to `master` (internal track).
 - Production release per slice unless multiple ship together for cohesion.
 
 ## 10. Risks
