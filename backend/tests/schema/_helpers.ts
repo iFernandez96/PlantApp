@@ -12,7 +12,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 export const SCHEMAS_DIR = resolve(__dirname, '../../../shared-schemas');
 
 export function createAjv(): InstanceType<typeof Ajv2020> {
-  const ajv = new Ajv2020({ allErrors: true, strict: false });
+  const ajv = new Ajv2020({ allErrors: true, strict: true });
   addFormats(ajv);
   return ajv;
 }

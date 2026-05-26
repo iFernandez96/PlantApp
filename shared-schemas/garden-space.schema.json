@@ -9,7 +9,7 @@
   "properties": {
     "id": { "type": "string", "format": "uuid" },
     "userId": { "type": "string" },
-    "name": { "type": "string", "maxLength": 80 },
+    "name": { "type": "string", "minLength": 1, "maxLength": 80 },
     "kind": {
       "type": "string",
       "enum": [
