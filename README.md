@@ -44,7 +44,7 @@ evals/                   AI evaluation harness scaffolds (per flow).
 
 ## Current phase
 
-**Pre-Slice 1 scaffolding.** All twelve Slice 1 decisions (D-01 … D-12) were accepted on 2026-05-26. The accepted pins are reflected in ADR-0002, ADR-0003, and `docs/slice-01-implementation-plan.md`. The next step is a final docs-consistency sweep, then initializing the empty Android and backend module skeletons (no production code yet).
+**Pre-Slice 1 scaffolding.** All twelve Slice 1 decisions (D-01 … D-12) were accepted on 2026-05-26. The accepted pins are reflected in ADR-0002, ADR-0003, and `docs/slice-01-implementation-plan.md`. The next step is initializing the empty Android and backend module skeletons (build files and empty modules only — no production behavior yet).
 
 ## Next step
 
