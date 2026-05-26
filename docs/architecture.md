@@ -44,7 +44,7 @@ Modules grow per slice. Targets at the end of MVP; Slice 1 starts with the **min
 - `:data` — Room entities, DataStore prefs, repository implementations.
 - `:domain` — Use cases, models, ports.
 - `:care-engine` — **(Deferred; not in Slice 1.)** Per decision log D-09 the care-engine lives only in the backend (TypeScript) for Slice 1. A pure-Kotlin Android port is added later — likely Slice 3 or 4 — when offline scheduling/reminders are required. The port will be paired with a shared JSON test-vector suite to prevent cross-language drift (ADR-0001).
-- `:network` — Retrofit (per decision log D-02) or Ktor clients, DTOs derived from `shared-schemas/`.
+- `:network` — Retrofit + OkHttp + kotlinx.serialization DTOs derived from `shared-schemas/`. Ktor remains a fallback only if Kotlin Multiplatform is later adopted.
 - `:notifications` — (Slice 3) FCM + WorkManager.
 - `:camera` — (Slice 7) CameraX with EXIF stripping.
 - `:feature-inventory` (Slice 1), `:feature-care` (Slice 3+), `:feature-diagnosis` (Slice 7), `:feature-space` (Slice 8).

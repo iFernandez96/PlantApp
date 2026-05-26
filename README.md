@@ -48,9 +48,9 @@ evals/                   AI evaluation harness scaffolds (per flow).
 
 ## Next step
 
-1. Sync any remaining stale wording in the foundation docs to the accepted decisions.
-2. Initialize Slice 1 scaffolding: backend Node.js/TypeScript project skeleton, Supabase migrations folder, Android Gradle multi-module skeleton (`:app`, `:design-system`, `:domain`, `:data`, `:network`, `:feature-inventory`), root task runner. **Build files and empty modules only — no business logic.**
-3. After scaffolding is reviewed, begin Slice 1 implementation per `docs/slice-01-implementation-plan.md`.
+Initialize Slice 1 scaffolding: backend Node.js/TypeScript skeleton, Supabase migrations folder, Android Gradle multi-module skeleton, and root task runner. **Build files and empty modules only — no business logic.**
+
+Slice 1 implementation begins only after the scaffolding is reviewed, per `docs/slice-01-implementation-plan.md`.
 
 ## ⚠️ Do not implement production behavior yet
 
