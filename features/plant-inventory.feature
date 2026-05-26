@@ -10,30 +10,54 @@ Feature: Plant inventory
     And a container "Blue barrel" exists for user "owner" with volume 19 liters and material "plastic"
 
   @slice-1 @happy-path
-  Scenario: Add a passion fruit plant in a 5-gallon barrel
+  Scenario: Add a passion fruit plant in a 5-gallon barrel with a last-watered date
     When I add a plant with:
-      | profile      | Passion fruit |
-      | nickname     | Pasi          |
-      | container    | Blue barrel   |
-      | garden space | West Balcony  |
-      | placement    | floor         |
-      | growth stage | vegetative    |
+      | profile        | Passion fruit             |
+      | nickname       | Pasi                      |
+      | container      | Blue barrel               |
+      | garden space   | West Balcony              |
+      | placement      | floor                     |
+      | growth stage   | vegetative                |
+      | last watered   | 2026-05-26T07:00:00Z      |
     Then a plant instance is persisted with the supplied profile, container, and garden space
+    And the plant instance records lastWateredAt = "2026-05-26T07:00:00Z"
     And listing my plants returns the new plant exactly once
     And fetching the plant detail returns nickname "Pasi", placement "floor", and growth stage "vegetative"
 
   @slice-1 @happy-path
-  Scenario: Adding a plant generates one initial deterministic water task
+  Scenario: Initial water task is anchored on the supplied lastWateredAt
     Given the care-engine version is "0.1.0"
-    When I add a plant with profile "Tomato" in container "Blue barrel" in garden space "West Balcony"
+    When I add a plant with:
+      | profile        | Tomato                    |
+      | container      | Blue barrel               |
+      | garden space   | West Balcony              |
+      | last watered   | 2026-05-26T07:00:00Z      |
     Then exactly one CareTask of kind "water" is generated for that plant
-    And the CareTask has a non-empty rationale
+    And the CareTask has a non-empty rationale that mentions the baseline timestamp
     And the CareTask has engineVersion "0.1.0"
     And the CareTask has a non-empty inputsHash
     And the CareTask sourceInputs references the plant's profileId, containerId, and gardenSpaceId
     And the CareTask sourceInputs records a clockUtc timestamp
-    And the CareTask dueAt is in the future
+    And the CareTask sourceInputs records wateringBaselineAt = "2026-05-26T07:00:00Z"
+    And the CareTask dueAt equals "2026-05-26T07:00:00Z" plus the species base interval scaled by the container factor
     And running the engine again with the same inputs produces a CareTask with the same inputsHash
+
+  @slice-1 @happy-path
+  Scenario: Initial water task falls back to createdAt when lastWateredAt is omitted
+    Given the care-engine version is "0.1.0"
+    When I add a plant with profile "Tomato" in container "Blue barrel" in garden space "West Balcony" without a last-watered date
+    Then exactly one CareTask of kind "water" is generated for that plant
+    And the CareTask sourceInputs records wateringBaselineAt equal to the plant's createdAt
+    And the CareTask dueAt equals the plant's createdAt plus the species base interval scaled by the container factor
+    And the CareTask rationale mentions that the baseline is the plant's creation time
+
+  @slice-1 @determinism
+  Scenario: Two plants identical except for lastWateredAt produce different inputsHash and dueAt
+    Given the care-engine version is "0.1.0"
+    When I add a plant with profile "Tomato" in container "Blue barrel" in garden space "West Balcony" and lastWateredAt "2026-05-20T07:00:00Z"
+    And I add a second plant with profile "Tomato" in container "Blue barrel" in garden space "West Balcony" and lastWateredAt "2026-05-26T07:00:00Z"
+    Then the two CareTasks have different inputsHash values
+    And the second CareTask's dueAt is later than the first CareTask's dueAt by exactly the difference in their wateringBaselineAt values
 
   @slice-1 @negative
   Scenario: A plant cannot be added without a container
@@ -82,10 +106,12 @@ Feature: Plant inventory
     And no plant data is returned
 
   @slice-1 @determinism
-  Scenario: Deleting and re-adding the same plant produces a fresh CareTask but with an equal-shape sourceInputs reference set
-    Given a plant exists for profile "Tomato" in container "Blue barrel" in garden space "West Balcony"
+  Scenario: Deleting and re-adding the same plant produces a fresh CareTask with an equal-shape sourceInputs reference set
+    Given a plant exists for profile "Tomato" in container "Blue barrel" in garden space "West Balcony" with lastWateredAt "2026-05-26T07:00:00Z"
     And its initial water CareTask is recorded
-    When I delete the plant and add it again with identical inputs at a later clock
-    Then the new CareTask has a different inputsHash (because clockUtc differs)
+    When I delete the plant and add it again at a later clock with the same lastWateredAt and the same container and garden space
+    Then the new CareTask has a different inputsHash because clockUtc and plantInstanceId differ
     And the new CareTask sourceInputs references the new plantInstanceId
+    And the new CareTask sourceInputs records the same wateringBaselineAt "2026-05-26T07:00:00Z"
+    And the new CareTask dueAt equals the first CareTask's dueAt (the baseline did not change)
     And the new CareTask carries engineVersion "0.1.0"

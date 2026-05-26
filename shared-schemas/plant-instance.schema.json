@@ -21,6 +21,11 @@
     "placementHeightCm": { "type": "integer", "minimum": 0 },
     "acquiredAt": { "type": "string", "format": "date" },
     "plantedAt": { "type": "string", "format": "date" },
+    "lastWateredAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Onboarding baseline for initial watering task. Later slices derive this from CareLogEvent history."
+    },
     "growthStage": {
       "type": "string",
       "enum": ["seed", "seedling", "vegetative", "flowering", "fruiting", "dormant", "harvested"]

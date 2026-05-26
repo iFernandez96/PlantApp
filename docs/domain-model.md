@@ -41,6 +41,7 @@ Schema: `shared-schemas/plant-profile.schema.json`.
 - `placementHeightCm` (int, optional)
 - `acquiredAt` (date)
 - `plantedAt` (date)
+- `lastWateredAt` (date-time, optional) — **onboarding baseline only.** Set when the user adds a plant they already own and remember the last watering for. The care-engine reads it as the watering baseline in Slice 1. **It is not the long-term source of truth for watering history**: starting in Slice 4, `CareLogEvent` records become the source of truth and the engine derives the baseline from log history rather than from this field.
 - `growthStage` (enum: seed, seedling, vegetative, flowering, fruiting, dormant, harvested)
 - `notes` (string)
 - `photos` (storageKey[])

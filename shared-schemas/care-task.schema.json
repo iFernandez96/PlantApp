@@ -31,7 +31,7 @@
     "sourceInputs": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["plantInstanceId", "profileId", "profileVersion", "containerId", "gardenSpaceId", "clockUtc"],
+      "required": ["plantInstanceId", "profileId", "profileVersion", "containerId", "gardenSpaceId", "clockUtc", "wateringBaselineAt"],
       "properties": {
         "plantInstanceId": { "type": "string", "format": "uuid" },
         "profileId": { "type": "string" },
@@ -39,6 +39,11 @@
         "containerId": { "type": "string", "format": "uuid" },
         "gardenSpaceId": { "type": "string", "format": "uuid" },
         "clockUtc": { "type": "string", "format": "date-time" },
+        "wateringBaselineAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The timestamp used as the starting point for the watering interval. Slice 1: plant.lastWateredAt ?? plant.createdAt. Slice 4+: derived from CareLogEvent history."
+        },
         "weatherWindowRef": { "type": ["string", "null"], "description": "Opaque id of the weather window record used; null when degraded or pre-weather-slice." },
         "feedbackWindowRef": { "type": ["string", "null"], "description": "Opaque id of the feedback window considered; null when no feedback applied." }
       }

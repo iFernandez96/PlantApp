@@ -17,8 +17,9 @@ This slice excludes weather, feedback, advisories, feeding, AI, notifications, p
 ## In-scope BDD scenarios
 
 From `features/plant-inventory.feature` — tagged `@slice-1`:
-- Add a passion fruit plant in a 5-gallon barrel (happy path).
-- Adding a plant generates one initial deterministic water task (happy path).
+- Add a passion fruit plant in a 5-gallon barrel **with a last-watered date** (happy path).
+- Adding a plant generates one initial deterministic water task with `dueAt` anchored on the supplied `lastWateredAt` (happy path).
+- Baseline fallback: when `lastWateredAt` is omitted, `dueAt` is anchored on `createdAt`.
 - Negative: missing container.
 - Negative: missing garden space.
 - Negative: unknown profile id.
@@ -26,10 +27,21 @@ From `features/plant-inventory.feature` — tagged `@slice-1`:
 - Negative: unknown container material.
 - Negative: empty name / missing kind for garden space.
 - Authorization: a user cannot read another user's plants.
-- Determinism: re-adding produces a different inputsHash because clockUtc differs, with consistent shape.
+- Determinism: re-adding produces a different inputsHash because `clockUtc` (and possibly the new `lastWateredAt`) differs, with consistent shape.
 
 From `features/watering.feature` — tagged `@slice-1`:
 - The engine output is purely a function of inputs.
+
+### Slice 1 add-plant form
+
+The add-plant form in `:feature-inventory` collects:
+- profile (selector against the catalog),
+- nickname (optional),
+- container (selector or create-new),
+- garden space (selector or create-new),
+- placement,
+- growth stage,
+- **last watered** (optional date-time; populates `PlantInstance.lastWateredAt` and the engine's baseline; default is "unknown — use creation time").
 
 ## Out of scope (explicitly)
 
@@ -85,20 +97,27 @@ Defer to later slices: `:care-engine` (Kotlin port — Slice 3 or 4 when offline
 ## Care-engine v0.1.0 rule (Slice 1 only)
 
 ```
-dueAt = plant.plantedAt or createdAt
-        + profile.wateringProfile.baseIntervalDays days
-        × containerFactor
-containerFactor = clamp(container.volumeLiters / profile.containerProfile.recommendedMinLiters,
-                        0.5, 1.5)
-priority = "normal"
-rationale = "<species common name>: base interval {baseIntervalDays}d adjusted by container factor {containerFactor}"
-engineVersion = "0.1.0"
-inputsHash = sha256(canonical-json(sourceInputs))
-sourceInputs = {plantInstanceId, profileId, profileVersion, containerId, gardenSpaceId,
-                clockUtc, weatherWindowRef: null, feedbackWindowRef: null}
+wateringBaselineAt = plant.lastWateredAt ?? plant.createdAt
+containerFactor    = clamp(container.volumeLiters
+                           / profile.containerProfile.recommendedMinLiters,
+                           0.5, 1.5)
+dueAt              = wateringBaselineAt
+                     + profile.wateringProfile.baseIntervalDays × containerFactor
+priority           = "normal"
+rationale          = "<species common name>: base interval {baseIntervalDays}d
+                      adjusted by container factor {containerFactor};
+                      baseline {wateringBaselineAt}"
+engineVersion      = "0.1.0"
+sourceInputs       = { plantInstanceId, profileId, profileVersion,
+                       containerId, gardenSpaceId, clockUtc,
+                       wateringBaselineAt,
+                       weatherWindowRef: null, feedbackWindowRef: null }
+inputsHash         = sha256(canonical-json(sourceInputs))
 ```
 
 No weather, no feedback, no advisories. Deliberately simple so it's auditable.
+
+**On `lastWateredAt`:** the Slice 1 add-plant form accepts an optional "last watered" date-time so the user can onboard existing plants honestly. The field is an onboarding baseline only — Slice 4 introduces `CareLogEvent` as the long-term source of truth and the engine derives the baseline from log history from then on.
 
 ## First failing tests (red-first order)
 
@@ -114,10 +133,13 @@ These tests should be written **before** their respective implementations. Each 
 
 ### Domain / care-engine unit tests (pure, no I/O)
 7. `computeInitialWaterTask(...)` returns one `CareTask` with kind = "water".
-8. The task carries the exact `engineVersion`, `inputsHash`, `sourceInputs`, `rationale`, `dueAt`, `priority`.
-9. Determinism: equal inputs (including `clockUtc`) → byte-equal output and identical `inputsHash`.
+8. The task carries the exact `engineVersion`, `inputsHash`, `sourceInputs` (including `wateringBaselineAt`), `rationale`, `dueAt`, `priority`.
+9. Determinism: equal inputs (including `clockUtc` and `wateringBaselineAt`) → byte-equal output and identical `inputsHash`.
 10. Container factor clamps: ratios below 0.5 and above 1.5 produce factors 0.5 and 1.5 respectively.
-11. Recomputation with a later `clockUtc` produces a different `inputsHash` and a later `dueAt`.
+11. Recomputation with a later `clockUtc` (and unchanged baseline) produces a different `inputsHash` but the **same** `dueAt`, because `dueAt` is anchored on `wateringBaselineAt`.
+12. Baseline supplied: when `plant.lastWateredAt` is set, `sourceInputs.wateringBaselineAt === plant.lastWateredAt` and `dueAt = lastWateredAt + interval × containerFactor`.
+13. Baseline fallback: when `plant.lastWateredAt` is absent, `sourceInputs.wateringBaselineAt === plant.createdAt` and `dueAt` is anchored there.
+14. Baseline-induced hash difference: two otherwise-identical plants with different `lastWateredAt` values produce different `inputsHash` values and correspondingly different `dueAt` values.
 
 ### Repository / API integration tests (against a real Postgres)
 12. `POST /plants` with valid body creates the plant and emits one initial `CareTask`.

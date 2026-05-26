@@ -101,15 +101,32 @@ This log captures the architecture decisions that are still **unpinned** in ADR-
 
 ## D-10 — Care-engine v0.1.0 watering formula
 
-**Proposed pin:** The formula documented in `docs/slice-01-implementation-plan.md` §"Care-engine v0.1.0 rule":
-- `dueAt = (plant.plantedAt ?? plant.createdAt) + profile.wateringProfile.baseIntervalDays × containerFactor`
-- `containerFactor = clamp(container.volumeLiters / profile.containerProfile.recommendedMinLiters, 0.5, 1.5)`
-- `priority = "normal"`
-- `engineVersion = "0.1.0"`
+**Proposed pin (revised):**
 
-**Why:** Minimal but plausible and fully testable. Slices 3 and 4 will extend it.
+```
+wateringBaselineAt = plant.lastWateredAt ?? plant.createdAt
+containerFactor    = clamp(container.volumeLiters
+                           / profile.containerProfile.recommendedMinLiters,
+                           0.5, 1.5)
+dueAt              = wateringBaselineAt
+                     + profile.wateringProfile.baseIntervalDays × containerFactor
+priority           = "normal"
+engineVersion      = "0.1.0"
+sourceInputs       = { plantInstanceId, profileId, profileVersion,
+                       containerId, gardenSpaceId, clockUtc,
+                       wateringBaselineAt,
+                       weatherWindowRef: null, feedbackWindowRef: null }
+inputsHash         = sha256(canonical-json(sourceInputs))
+rationale          = "<species common name>: base interval {baseIntervalDays}d
+                      adjusted by container factor {containerFactor};
+                      baseline {wateringBaselineAt}"
+```
 
-**Fallback:** If owner review thinks the default interval should also be capped (e.g. never < 6h), add a floor in the same patch and bump to `0.1.1`.
+**Why:** Honest onboarding for existing plants. A user who adds a tomato they watered this morning should not get a reminder tomorrow as if it were watered the moment the row was inserted. `lastWateredAt` is the user-supplied baseline; when absent, the engine falls back to `createdAt` for new transplants or unknown history. Including `wateringBaselineAt` in `sourceInputs` keeps the input set complete for `inputsHash` reproducibility and forensic tracing.
+
+**Note on long-term source of truth:** `lastWateredAt` is an **onboarding baseline only**. Slice 4 introduces `CareLogEvent` as the long-term source of truth; from Slice 4 onward the engine derives the baseline from log history rather than from a frozen field on the plant.
+
+**Fallback:** If owner review wants a minimum dueAt floor (e.g. never sooner than 6h after `clockUtc`), add a clamp in the same patch and bump to `0.1.1`.
 
 ---
 
