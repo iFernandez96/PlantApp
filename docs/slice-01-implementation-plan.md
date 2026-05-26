@@ -58,7 +58,7 @@ The add-plant form in `:feature-inventory` collects:
 - Jetpack Compose + Material 3 — current stable navigation, list, form components.
 - Hilt setup for Compose-only apps.
 - Room with KSP.
-- Ktor client (engine choice) OR Retrofit (per ADR-0002 pin).
+- Retrofit + OkHttp + kotlinx.serialization, per accepted D-02 / ADR-0002.
 - kotlinx.serialization JSON.
 - Supabase: Postgres schema design, Auth flows, RLS policy syntax.
 - JSON Schema 2020-12 validator: Ajv (TS) or networknt (Kotlin).
@@ -155,9 +155,9 @@ These tests should be written **before** their respective implementations. Each 
 23. Detail screen shows the next task with kind "water", a rationale string, the `engineVersion` badge, and a `dueAt` formatted timestamp.
 24. Validation: submitting without container shows a field-level error and does not navigate.
 
-## Architecture decisions to pin (proposed; awaiting approval)
+## Accepted architecture decisions
 
-See `docs/slice-01-decision-log.md`.
+D-01 through D-12 are accepted in `docs/slice-01-decision-log.md` and reflected in ADR-0002 and ADR-0003.
 
 ## Definition of done for Slice 1
 
