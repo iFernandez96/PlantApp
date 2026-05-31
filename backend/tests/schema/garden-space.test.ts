@@ -1,11 +1,9 @@
 // Test #4 (per docs/slice-01-implementation-plan.md):
 // garden-space.schema.json rejects empty name and missing kind.
 //
-// Note: at the time these tests were written, garden-space.schema.json does
-// not yet enforce a minLength on `name`. The empty-name test therefore acts
-// as a contract specification: when it fails red, the next step is to add
-// `"minLength": 1` (and likely `"pattern"` or `"format"` constraints) to the
-// schema rather than to weaken the test.
+// garden-space.schema.json enforces `"minLength": 1` on `name`
+// (shared-schemas/garden-space.schema.json), so the empty-name case below is a
+// passing regression guard, not a pending red contract.
 import { describe, it, expect, beforeAll } from 'vitest';
 import type { ValidateFunction } from 'ajv';
 import { compileSchema, clone } from './_helpers.js';
