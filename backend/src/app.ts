@@ -7,6 +7,7 @@ import Fastify, { type FastifyInstance } from 'fastify';
 import { randomUUID } from 'node:crypto';
 import { computeInitialWaterTask } from '../care-engine/index.js';
 import { computeAdvisories } from '../care-engine/advisories.js';
+import { computeTaskFromAdvisory } from '../care-engine/task-from-advisory.js';
 import { loadConfig } from './config.js';
 import { makeAuthHook } from './auth.js';
 import { toGardenSpace, toContainer, toPlantInstance, toCareTask, toPlantProfile } from './mappers.js';
@@ -407,6 +408,149 @@ export async function buildApp(): Promise<FastifyInstance> {
 
     return reply.code(200).send(advisories);
   });
+
+  // POST /plants/:id/advisories/accept — on EXPLICIT user acceptance of a currently-applicable
+  // advisory, create and persist one deterministic CareTask via computeTaskFromAdvisory. This is
+  // the only path that turns an advisory into a task; GET advisories still creates nothing.
+  app.post(
+    '/plants/:id/advisories/accept',
+    {
+      onRequest: requireAuth,
+      schema: {
+        body: { type: 'object', required: ['kind'], properties: { kind: { type: 'string' } } },
+      },
+    },
+    async (request, reply) => {
+      const { id } = request.params as { id: string };
+      const body = request.body as { kind: string };
+      const supabase = request.supabase;
+
+      // Same loads as GET /plants/:id/advisories, plus garden_space_id (sourceInputs.gardenSpaceId)
+      // and the profile version (sourceInputs.profileVersion). RLS-scoped → 404 if not owned.
+      const plantRes = await supabase
+        .from('plant_instances')
+        .select('id, profile_id, container_id, garden_space_id, support_recorded')
+        .eq('id', id)
+        .maybeSingle();
+      if (plantRes.error) return reply.code(400).send({ error: plantRes.error.message });
+      if (!plantRes.data) return reply.code(404).send({ error: 'not_found' });
+      const plant = plantRes.data as {
+        id: string;
+        profile_id: string;
+        container_id: string;
+        garden_space_id: string;
+        support_recorded: boolean | null;
+      };
+
+      const profileRes = await supabase
+        .from('plant_profiles')
+        .select(
+          'id, version, common_names, requires_support, self_fruitful, pollination_partners_required, container_profile',
+        )
+        .eq('id', plant.profile_id)
+        .maybeSingle();
+      if (profileRes.error) return reply.code(400).send({ error: profileRes.error.message });
+      if (!profileRes.data) return reply.code(400).send({ error: 'profile not found' });
+      const profile = profileRes.data as {
+        id: string;
+        version: number;
+        common_names: string[];
+        requires_support: boolean | null;
+        self_fruitful: boolean | null;
+        pollination_partners_required: number | null;
+        container_profile: {
+          recommendedMinLiters: number;
+          idealMinLiters?: number;
+          idealMaxLiters?: number;
+        };
+      };
+
+      const containerRes = await supabase
+        .from('containers')
+        .select('volume_liters')
+        .eq('id', plant.container_id)
+        .maybeSingle();
+      if (containerRes.error) return reply.code(400).send({ error: containerRes.error.message });
+      if (!containerRes.data) return reply.code(400).send({ error: 'container not found' });
+      const container = containerRes.data as { volume_liters: number };
+
+      const countRes = await supabase
+        .from('plant_instances')
+        .select('id', { count: 'exact', head: true })
+        .eq('profile_id', plant.profile_id);
+      if (countRes.error) return reply.code(400).send({ error: countRes.error.message });
+      const profileInstanceCount = countRes.count ?? 0;
+
+      const advisories = computeAdvisories({
+        plant: {
+          id: plant.id,
+          profileId: plant.profile_id,
+          supportRecorded: plant.support_recorded ?? false,
+        },
+        profile: {
+          id: profile.id,
+          commonNames: profile.common_names,
+          requiresSupport: profile.requires_support ?? false,
+          selfFruitful: profile.self_fruitful,
+          pollinationPartnersRequired: profile.pollination_partners_required ?? 0,
+          containerProfile: profile.container_profile,
+        },
+        container: { volumeLiters: Number(container.volume_liters) },
+        profileInstanceCount,
+      });
+
+      // The advisory must be currently applicable to be accepted.
+      const match = advisories.find((a) => a.kind === body.kind);
+      if (!match) return reply.code(400).send({ error: 'advisory not applicable', field: 'kind' });
+
+      const now = new Date().toISOString();
+      const taskId = randomUUID();
+      let task;
+      try {
+        task = computeTaskFromAdvisory({
+          id: taskId,
+          clockUtc: now,
+          advisory: {
+            kind: match.kind,
+            severity: match.severity,
+            title: match.title,
+            message: match.message,
+          },
+          plant: {
+            id: plant.id,
+            profileId: plant.profile_id,
+            containerId: plant.container_id,
+            gardenSpaceId: plant.garden_space_id,
+          },
+          profile: { id: profile.id, version: profile.version },
+        });
+      } catch (e) {
+        // e.g. "unsupported advisory kind: pollination" — pollination is not a single task.
+        return reply.code(400).send({ error: (e as Error).message, field: 'kind' });
+      }
+
+      const ins = await supabase
+        .from('care_tasks')
+        .insert({
+          id: task.id,
+          plant_instance_id: task.plantInstanceId,
+          user_id: request.userId,
+          kind: task.kind,
+          due_at: task.dueAt,
+          priority: task.priority,
+          rationale: task.rationale,
+          rationale_metadata: task.rationaleMetadata,
+          engine_version: task.engineVersion,
+          inputs_hash: task.inputsHash,
+          source_inputs: task.sourceInputs,
+          status: task.status,
+        })
+        .select()
+        .single();
+      if (ins.error) return reply.code(400).send({ error: ins.error.message });
+      return reply.code(201).send(toCareTask(ins.data as Record<string, unknown>));
+    },
+  );
 
   // DELETE /plants/:id — delete the caller's plant; 204 on success, 404 if not owned.
   // care_tasks rows cascade via the plant_instances → care_tasks ON DELETE CASCADE FK.
