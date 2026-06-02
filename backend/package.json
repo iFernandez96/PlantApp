@@ -16,8 +16,10 @@
     "validate-schemas": "ajv compile --spec=draft2020 --all-errors --strict=true -s '../shared-schemas/*.schema.json'"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.106.2",
     "ajv": "^8.17.1",
-    "ajv-formats": "^3.0.1"
+    "ajv-formats": "^3.0.1",
+    "fastify": "^5.8.5"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",
