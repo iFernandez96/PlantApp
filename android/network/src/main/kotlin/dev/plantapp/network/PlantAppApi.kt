@@ -18,6 +18,15 @@ interface PlantAppApi {
     @POST("plants")
     suspend fun addPlant(@Body body: AddPlantRequest): AddPlantResponse
 
+    @GET("plant-profiles")
+    suspend fun getPlantProfiles(): List<PlantProfileDto>
+
+    @GET("garden-spaces")
+    suspend fun getGardenSpaces(): List<GardenSpaceDto>
+
+    @GET("containers")
+    suspend fun getContainers(): List<ContainerDto>
+
     @GET("plants")
     suspend fun listPlants(): List<PlantInstanceDto>
 

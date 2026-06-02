@@ -1,5 +1,8 @@
 package dev.plantapp.network
 
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
+
 /** Schema-valid fixtures for the Slice 1 DTOs (uuids, ISO date-times, semver, etc.). */
 object DtoFixtures {
     const val PLANT_ID = "00000000-0000-4000-8000-000000000001"
@@ -62,5 +65,24 @@ object DtoFixtures {
         ),
         status = "pending",
         createdAt = TS,
+    )
+
+    val plantProfile = PlantProfileDto(
+        id = "solanum-lycopersicum",
+        scientificName = "Solanum lycopersicum",
+        commonNames = listOf("Tomato"),
+        category = "fruit",
+        growthHabit = "vine",
+        wateringProfile = buildJsonObject {
+            put("baseIntervalDays", 2)
+            put("dryingTolerance", "low")
+        },
+        feedingProfile = buildJsonObject { put("baseIntervalDays", 7) },
+        containerProfile = buildJsonObject { put("recommendedMinLiters", 19) },
+        lightProfile = buildJsonObject { put("targetSunHours", 8) },
+        temperatureProfile = buildJsonObject { put("frostSensitive", true) },
+        version = 1,
+        requiresSupport = true,
+        selfFruitful = true,
     )
 }

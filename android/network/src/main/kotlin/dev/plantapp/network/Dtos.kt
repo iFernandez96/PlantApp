@@ -1,6 +1,7 @@
 package dev.plantapp.network
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 
 // Slice 1 network DTOs. camelCase, matching the backend API responses and the
@@ -133,6 +134,32 @@ data class AddPlantRequest(
 data class AddPlantResponse(
     val plant: PlantInstanceDto,
     val task: CareTaskDto,
+)
+
+/** Species-level catalog entry (plant-profile.schema.json). The add-plant profile selector
+ *  consumes the scalar fields; the nested *Profile sub-objects are carried as opaque
+ *  JsonObject (the selector doesn't need their internals). */
+@Serializable
+data class PlantProfileDto(
+    val id: String,
+    val scientificName: String,
+    val commonNames: List<String>,
+    val category: String,
+    val growthHabit: String,
+    val wateringProfile: JsonObject,
+    val feedingProfile: JsonObject,
+    val containerProfile: JsonObject,
+    val lightProfile: JsonObject,
+    val temperatureProfile: JsonObject,
+    val version: Int,
+    val requiresSupport: Boolean? = null,
+    val selfFruitful: Boolean? = null,
+    val pollinationPartnersRequired: Int? = null,
+    val seasonality: JsonObject? = null,
+    val commonIssues: List<String>? = null,
+    val verticalSuitability: Double? = null,
+    val source: JsonArray? = null,
+    val lastReviewedAt: String? = null,
 )
 
 /** Slice 2 — a backend-computed, profile-driven advisory (advisory.schema.json). */

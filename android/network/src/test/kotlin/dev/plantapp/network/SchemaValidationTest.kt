@@ -33,4 +33,10 @@ class SchemaValidationTest {
         val errors = TestSupport.validateAgainstSchema("care-task", json.encodeToString(DtoFixtures.careTask))
         assertTrue(errors.isEmpty(), "CareTaskDto schema errors: $errors")
     }
+
+    @Test
+    fun plantProfileDtoConformsToSchema() {
+        val errors = TestSupport.validateAgainstSchema("plant-profile", json.encodeToString(DtoFixtures.plantProfile))
+        assertTrue(errors.isEmpty(), "PlantProfileDto schema errors: $errors")
+    }
 }
