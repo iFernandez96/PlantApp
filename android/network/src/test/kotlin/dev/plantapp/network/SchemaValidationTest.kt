@@ -4,7 +4,7 @@ import kotlin.test.Test
 import kotlin.test.assertTrue
 import kotlinx.serialization.encodeToString
 
-/** D-06: serialized DTOs must validate against the matching shared-schemas/*.schema.json
+/** D-06: serialized DTOs must validate against the matching schema under shared-schemas
  *  (JSON Schema 2020-12, via networknt). Proves the Android DTOs honor the cross-boundary
  *  contract shared with the backend. */
 class SchemaValidationTest {
