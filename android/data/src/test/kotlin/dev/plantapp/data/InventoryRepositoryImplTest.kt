@@ -1,5 +1,6 @@
 package dev.plantapp.data
 
+import dev.plantapp.data.repository.InventoryRepositoryImpl
 import dev.plantapp.domain.model.NewPlant
 import dev.plantapp.domain.repository.InventoryRepository
 import kotlin.test.Test
