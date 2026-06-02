@@ -1,6 +1,6 @@
 package dev.plantapp.feature.inventory.addplant
 
-import androidx.annotation.DrawableRes
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,6 +12,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -25,6 +26,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -113,9 +115,15 @@ fun AddPlantWizard(
             when (step) {
                 1 -> profiles.forEach { profile ->
                     Tile(
-                        iconRes = WizardIcons.speciesIconRes(profile.id),
                         label = speciesName(profile),
                         tag = InventoryTestTags.WIZARD_SPECIES_TILE_PREFIX + profile.id,
+                        leadingIcon = {
+                            Image(
+                                painter = painterResource(WizardIcons.speciesIconRes(profile.id)),
+                                contentDescription = null,
+                                modifier = Modifier.size(48.dp),
+                            )
+                        },
                     ) {
                         selectedProfile = profile
                         step = 2
@@ -124,9 +132,9 @@ fun AddPlantWizard(
 
                 2 -> AddPlantWizardModel.LOCATION_PRESETS.forEach { preset ->
                     Tile(
-                        iconRes = WizardIcons.locationIconRes(preset.kind),
                         label = preset.label,
                         tag = InventoryTestTags.WIZARD_LOCATION_TILE_PREFIX + preset.kind,
+                        leadingIcon = { TileIcon(WizardIcons.locationIcon(preset.kind)) },
                     ) {
                         targetSpaceName = preset.label
                         targetSpaceKind = preset.kind
@@ -140,9 +148,9 @@ fun AddPlantWizard(
 
                 3 -> AddPlantWizardModel.POT_SIZES.forEach { option ->
                     Tile(
-                        iconRes = WizardIcons.potIconRes(),
                         label = option.label,
                         tag = InventoryTestTags.WIZARD_POT_TILE_PREFIX + potTileTagSuffix(option.label),
+                        leadingIcon = { TileIcon(WizardIcons.potIcon(option.label)) },
                     ) {
                         val name = "${selectedProfile?.let(::speciesName) ?: "Plant"} – ${option.label}"
                         targetContainerName = name
@@ -191,12 +199,17 @@ fun AddPlantWizard(
     }
 }
 
+@Composable
+private fun TileIcon(icon: ImageVector) {
+    Icon(imageVector = icon, contentDescription = null, modifier = Modifier.size(48.dp))
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun Tile(
-    @DrawableRes iconRes: Int,
     label: String,
     tag: String,
+    leadingIcon: @Composable () -> Unit,
     onClick: () -> Unit,
 ) {
     Card(
@@ -208,11 +221,7 @@ private fun Tile(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            androidx.compose.foundation.Image(
-                painter = painterResource(iconRes),
-                contentDescription = null,
-                modifier = Modifier.size(48.dp),
-            )
+            leadingIcon()
             Text(text = label, style = MaterialTheme.typography.titleLarge)
         }
     }

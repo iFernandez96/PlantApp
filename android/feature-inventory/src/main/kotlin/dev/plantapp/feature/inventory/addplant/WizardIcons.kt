@@ -1,11 +1,25 @@
 package dev.plantapp.feature.inventory.addplant
 
 import androidx.annotation.DrawableRes
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Balcony
+import androidx.compose.material.icons.filled.Compost
+import androidx.compose.material.icons.filled.Cottage
+import androidx.compose.material.icons.filled.Grass
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.LocalFlorist
+import androidx.compose.material.icons.filled.WbSunny
+import androidx.compose.material.icons.filled.Window
+import androidx.compose.material.icons.filled.Yard
+import androidx.compose.ui.graphics.vector.ImageVector
 import dev.plantapp.feature.inventory.R
 
-/** Maps wizard choices to custom (non-emoji) vector drawables. Kept separate from the pure
- *  [AddPlantWizardModel] because it references R.drawable. Species icons are per-id with a generic
- *  fallback; locations are per-kind; one generic pot icon serves all sizes (the label distinguishes). */
+/** Maps wizard choices to real sourced icons (no emoji, no hand-drawn art):
+ *  - species → CC0 crop vector drawables (openfarmcc/open-crop-icons; passion fruit uses the
+ *    generic-plant icon as the set has none).
+ *  - pots + locations → Material Symbols (Apache-2.0) ImageVectors, picked so the six pot sizes are
+ *    visually distinct (bucket / window-box / raised-bed differ from the small pots).
+ *  See feature-inventory/ICON_LICENSES.md. */
 object WizardIcons {
     @DrawableRes
     fun speciesIconRes(profileId: String): Int = when (profileId) {
@@ -17,15 +31,19 @@ object WizardIcons {
         else -> R.drawable.ic_species_default
     }
 
-    @DrawableRes
-    fun locationIconRes(kind: String): Int = when (kind) {
-        "windowsill" -> R.drawable.ic_loc_windowsill
-        "balcony" -> R.drawable.ic_loc_balcony
-        "yard" -> R.drawable.ic_loc_backyard
-        "indoor" -> R.drawable.ic_loc_indoors
-        else -> R.drawable.ic_loc_backyard
+    /** Distinct glyphs per pot size; the 3 small pots share one (the label gives the size). */
+    fun potIcon(label: String): ImageVector = when (label) {
+        "5-gallon bucket" -> Icons.Filled.Compost
+        "Window box" -> Icons.Filled.Window
+        "Raised bed / in-ground" -> Icons.Filled.Grass
+        else -> Icons.Filled.LocalFlorist // 4-inch / 6-inch / 1-gallon pots
     }
 
-    @DrawableRes
-    fun potIconRes(): Int = R.drawable.ic_pot
+    fun locationIcon(kind: String): ImageVector = when (kind) {
+        "windowsill" -> Icons.Filled.WbSunny
+        "balcony" -> Icons.Filled.Balcony
+        "yard" -> Icons.Filled.Cottage
+        "indoor" -> Icons.Filled.Home
+        else -> Icons.Filled.Yard
+    }
 }
