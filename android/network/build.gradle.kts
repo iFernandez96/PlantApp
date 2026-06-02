@@ -24,6 +24,12 @@ android {
     kotlinOptions {
         jvmTarget = "17"
     }
+
+    testOptions {
+        unitTests.all {
+            it.useJUnit()
+        }
+    }
 }
 
 dependencies {
@@ -36,4 +42,10 @@ dependencies {
 
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.coroutines.android)
+
+    testImplementation(libs.junit)
+    testImplementation(libs.kotlin.test.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.networknt.json.schema.validator)
+    testImplementation(libs.jackson.databind)
 }
