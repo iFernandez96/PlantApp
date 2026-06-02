@@ -24,8 +24,9 @@ android {
     }
 
     testOptions {
-        unitTests.all {
-            it.useJUnit()
+        unitTests {
+            isIncludeAndroidResources = true // Robolectric (WorkManager test harness) needs resources
+            all { it.useJUnit() }
         }
     }
 }
@@ -44,8 +45,13 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.serialization.json)
 
+    implementation(libs.androidx.work.runtime.ktx) // Slice 3 local reminders
+
     testImplementation(libs.junit)
     testImplementation(libs.kotlin.test.junit)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.retrofit)
+    testImplementation(libs.androidx.work.testing)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.androidx.test.ext.junit)
 }
