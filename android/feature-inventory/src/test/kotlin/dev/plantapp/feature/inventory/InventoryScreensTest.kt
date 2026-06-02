@@ -5,6 +5,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import dev.plantapp.domain.model.CareTask
 import dev.plantapp.domain.model.Plant
@@ -19,7 +20,7 @@ import org.robolectric.annotation.Config
 /** Slice 1 Compose UI tests #21–#24, run on the JVM via Robolectric (no emulator). The
  *  stateless screens are driven directly with fixture state + callback spies. */
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [34])
+@Config(sdk = [34], qualifiers = "w411dp-h2000dp") // tall window so the whole form lays out on-screen
 class InventoryScreensTest {
     @get:Rule
     val composeRule = createComposeRule()
@@ -59,7 +60,7 @@ class InventoryScreensTest {
         composeRule.onNodeWithTag(InventoryTestTags.FIELD_CONTAINER_ID).performTextInput(plant.containerId)
         composeRule.onNodeWithTag(InventoryTestTags.FIELD_GARDEN_SPACE_ID).performTextInput(plant.gardenSpaceId)
         composeRule.onNodeWithTag(InventoryTestTags.FIELD_GROWTH_STAGE).performTextInput("vegetative")
-        composeRule.onNodeWithTag(InventoryTestTags.SUBMIT_BUTTON).performClick()
+        composeRule.onNodeWithTag(InventoryTestTags.SUBMIT_BUTTON).performScrollTo().performClick()
 
         assertEquals("solanum-lycopersicum", submitted?.profileId)
         assertEquals(plant.containerId, submitted?.containerId)
@@ -88,7 +89,7 @@ class InventoryScreensTest {
         composeRule.onNodeWithTag(InventoryTestTags.FIELD_GARDEN_SPACE_ID).performTextInput(plant.gardenSpaceId)
         composeRule.onNodeWithTag(InventoryTestTags.FIELD_GROWTH_STAGE).performTextInput("vegetative")
         // containerId intentionally left blank
-        composeRule.onNodeWithTag(InventoryTestTags.SUBMIT_BUTTON).performClick()
+        composeRule.onNodeWithTag(InventoryTestTags.SUBMIT_BUTTON).performScrollTo().performClick()
 
         composeRule.onNodeWithTag(InventoryTestTags.CONTAINER_ERROR).assertIsDisplayed()
         assertNull(submitted)
