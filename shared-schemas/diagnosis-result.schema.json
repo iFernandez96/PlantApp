@@ -68,7 +68,7 @@
       "if": { "properties": { "status": { "const": "out_of_scope" } } },
       "then": {
         "properties": {
-          "recommendations": { "maxItems": 0 }
+          "recommendations": { "type": "array", "maxItems": 0 }
         }
       }
     }

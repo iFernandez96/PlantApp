@@ -13,7 +13,7 @@
     "test:int": "vitest run --config vitest.integration.config.ts",
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc --noEmit",
-    "validate-schemas": "ajv compile --spec=draft2020 --all-errors --strict=true -s '../shared-schemas/*.schema.json'"
+    "validate-schemas": "ajv compile --spec=draft2020 -c ajv-formats --all-errors --strict=true -s '../shared-schemas/*.schema.json'"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.106.2",
