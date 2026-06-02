@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://plantapp.dev/schemas/advisory.schema.json",
+  "title": "Advisory",
+  "description": "A deterministic, profile-driven advisory surfaced for a PlantInstance. Never auto-creates a CareTask.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["kind", "severity", "plantInstanceId", "profileId", "title", "message"],
+  "properties": {
+    "kind": { "type": "string", "enum": ["container-size", "support", "pollination"] },
+    "severity": { "type": "string", "enum": ["low", "medium", "high"] },
+    "plantInstanceId": { "type": "string", "format": "uuid" },
+    "profileId": { "type": "string" },
+    "title": { "type": "string", "minLength": 1, "maxLength": 120 },
+    "message": { "type": "string", "minLength": 1, "maxLength": 2000 },
+    "details": { "type": "object", "additionalProperties": true },
+    "createdAt": { "type": "string", "format": "date-time" }
+  }
+}
