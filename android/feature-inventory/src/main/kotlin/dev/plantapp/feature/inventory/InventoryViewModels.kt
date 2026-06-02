@@ -6,11 +6,13 @@ import dev.plantapp.domain.model.Container
 import dev.plantapp.domain.model.GardenSpace
 import dev.plantapp.domain.model.NewPlant
 import dev.plantapp.domain.model.PlantProfile
+import dev.plantapp.domain.repository.AuthRepository
 import dev.plantapp.domain.repository.InventoryRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -105,6 +107,38 @@ class AddPlantViewModel @Inject constructor(
                 onSaved(result.plant.id)
             } catch (e: Exception) {
                 _error.value = e.message ?: "Could not add plant"
+            }
+        }
+    }
+}
+
+/** Drives email-OTP sign-in: requests a code, then verifies it (the token is persisted by the
+ *  AuthRepository on success). */
+@HiltViewModel
+class SignInViewModel @Inject constructor(
+    private val auth: AuthRepository,
+) : ViewModel() {
+    private val _state = MutableStateFlow(SignInUiState())
+    val state: StateFlow<SignInUiState> = _state.asStateFlow()
+
+    fun requestCode(email: String) {
+        viewModelScope.launch {
+            try {
+                auth.requestOtp(email)
+                _state.update { it.copy(codeSent = true, error = null) }
+            } catch (e: Exception) {
+                _state.update { it.copy(error = e.message ?: "Could not send code") }
+            }
+        }
+    }
+
+    fun verify(email: String, code: String, onSignedIn: () -> Unit) {
+        viewModelScope.launch {
+            try {
+                auth.verifyOtp(email, code)
+                onSignedIn()
+            } catch (e: Exception) {
+                _state.update { it.copy(error = e.message ?: "Invalid code") }
             }
         }
     }

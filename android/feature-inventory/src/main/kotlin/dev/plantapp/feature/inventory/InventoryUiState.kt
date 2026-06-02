@@ -23,6 +23,12 @@ sealed interface PlantDetailUiState {
     data class Error(val message: String) : PlantDetailUiState
 }
 
+/** UI state for the email-OTP sign-in screen. */
+data class SignInUiState(
+    val codeSent: Boolean = false,
+    val error: String? = null,
+)
+
 /** Collected add-plant form input (ids for Slice 1; richer selectors are a later slice). */
 data class AddPlantForm(
     val profileId: String,

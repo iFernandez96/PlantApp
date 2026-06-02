@@ -30,4 +30,10 @@ object InventoryTestTags {
     const val TASK_DUE_AT = "detail_task_due_at"
 
     const val ADVISORY_SECTION = "detail_advisories"
+
+    const val FIELD_SIGNIN_EMAIL = "field_signin_email"
+    const val SIGNIN_SEND_CODE_BUTTON = "signin_send_code_button"
+    const val FIELD_SIGNIN_CODE = "field_signin_code"
+    const val SIGNIN_VERIFY_BUTTON = "signin_verify_button"
+    const val SIGNIN_ERROR = "signin_error"
 }

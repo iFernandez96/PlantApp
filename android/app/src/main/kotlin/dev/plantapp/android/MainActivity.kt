@@ -13,6 +13,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import dagger.hilt.android.AndroidEntryPoint
+import dev.plantapp.data.settings.SettingsStore
 import dev.plantapp.designsystem.PlantAppTheme
 import dev.plantapp.feature.inventory.AddPlantScreen
 import dev.plantapp.feature.inventory.AddPlantViewModel
@@ -20,17 +21,24 @@ import dev.plantapp.feature.inventory.PlantDetailScreen
 import dev.plantapp.feature.inventory.PlantDetailViewModel
 import dev.plantapp.feature.inventory.PlantListScreen
 import dev.plantapp.feature.inventory.PlantListViewModel
+import dev.plantapp.feature.inventory.SignInScreen
+import dev.plantapp.feature.inventory.SignInViewModel
 import androidx.compose.runtime.LaunchedEffect
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    @Inject lateinit var settings: SettingsStore
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent { PlantAppTheme { PlantAppNavHost() } }
+        val start = if (settings.tokenBlocking() != null) Routes.LIST else Routes.SIGN_IN
+        setContent { PlantAppTheme { PlantAppNavHost(startDestination = start) } }
     }
 }
 
 private object Routes {
+    const val SIGN_IN = "signin"
     const val LIST = "plants"
     const val ADD = "plants/add"
     const val DETAIL = "plants/{plantId}"
@@ -38,9 +46,25 @@ private object Routes {
 }
 
 @Composable
-fun PlantAppNavHost() {
+fun PlantAppNavHost(startDestination: String = Routes.LIST) {
     val nav = rememberNavController()
-    NavHost(navController = nav, startDestination = Routes.LIST) {
+    NavHost(navController = nav, startDestination = startDestination) {
+        composable(Routes.SIGN_IN) {
+            val vm: SignInViewModel = hiltViewModel()
+            val state by vm.state.collectAsState()
+            SignInScreen(
+                codeSent = state.codeSent,
+                error = state.error,
+                onRequestCode = vm::requestCode,
+                onVerify = { email, code ->
+                    vm.verify(email, code) {
+                        nav.navigate(Routes.LIST) {
+                            popUpTo(Routes.SIGN_IN) { inclusive = true }
+                        }
+                    }
+                },
+            )
+        }
         composable(Routes.LIST) {
             val vm: PlantListViewModel = hiltViewModel()
             val state by vm.state.collectAsState()
