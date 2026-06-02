@@ -2,6 +2,7 @@ package dev.plantapp.feature.inventory
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dev.plantapp.domain.model.Container
 import dev.plantapp.domain.model.GardenSpace
 import dev.plantapp.domain.model.NewPlant
 import dev.plantapp.domain.model.PlantProfile
@@ -52,11 +53,15 @@ class AddPlantViewModel @Inject constructor(
     private val _gardenSpaces = MutableStateFlow<List<GardenSpace>>(emptyList())
     val gardenSpaces: StateFlow<List<GardenSpace>> = _gardenSpaces.asStateFlow()
 
+    private val _containers = MutableStateFlow<List<Container>>(emptyList())
+    val containers: StateFlow<List<Container>> = _containers.asStateFlow()
+
     init {
         viewModelScope.launch {
             try {
                 _profiles.value = repository.getPlantProfiles()
                 _gardenSpaces.value = repository.getGardenSpaces()
+                _containers.value = repository.getContainers()
             } catch (e: Exception) {
                 _error.value = e.message ?: "Could not load add-plant options"
             }
@@ -70,6 +75,17 @@ class AddPlantViewModel @Inject constructor(
                 _gardenSpaces.value = _gardenSpaces.value + gs
             } catch (e: Exception) {
                 _error.value = e.message ?: "Could not create garden space"
+            }
+        }
+    }
+
+    fun createContainer(name: String?, volumeLiters: Double, material: String, drainage: String) {
+        viewModelScope.launch {
+            try {
+                val c = repository.createContainer(name, volumeLiters, material, drainage)
+                _containers.value = _containers.value + c
+            } catch (e: Exception) {
+                _error.value = e.message ?: "Could not create container"
             }
         }
     }

@@ -54,10 +54,13 @@ fun PlantAppNavHost() {
             val vm: AddPlantViewModel = hiltViewModel()
             val profiles by vm.profiles.collectAsState()
             val gardenSpaces by vm.gardenSpaces.collectAsState()
+            val containers by vm.containers.collectAsState()
             AddPlantScreen(
                 profiles = profiles,
                 gardenSpaces = gardenSpaces,
+                containers = containers,
                 onCreateGardenSpace = vm::createGardenSpace,
+                onCreateContainer = vm::createContainer,
                 onSubmit = { form ->
                     vm.submit(form) { newId ->
                         nav.navigate(Routes.detail(newId)) {
