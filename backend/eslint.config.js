@@ -10,7 +10,11 @@ export default tseslint.config(
   {
     languageOptions: {
       parserOptions: {
-        project: ['./tsconfig.json'],
+        // Lint against tsconfig.eslint.json (extends the build tsconfig, widened to
+        // cover tests + *.config.ts + this config) so every linted file resolves to a
+        // TS program for typed linting. The build tsconfig's emitted scope is unchanged.
+        project: ['./tsconfig.eslint.json'],
+        tsconfigRootDir: import.meta.dirname,
       },
     },
     rules: {

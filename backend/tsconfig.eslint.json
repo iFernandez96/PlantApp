@@ -1,0 +1,17 @@
+{
+  "//": "Lint-only TS project. Extends the build tsconfig but widens scope to every file ESLint lints (tests, *.config.ts, eslint.config.js) so typed linting resolves them. noEmit + allowJs; never used for the build (see tsconfig.json for the emitted scope). Overrides the base `exclude` so it does NOT drop *.test.ts here.",
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "allowJs": true
+  },
+  "include": [
+    "care-engine/**/*",
+    "src/**/*",
+    "scripts/**/*",
+    "tests/**/*",
+    "*.config.ts",
+    "eslint.config.js"
+  ],
+  "exclude": ["node_modules", "dist"]
+}
