@@ -11,14 +11,18 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import dev.plantapp.designsystem.GlassCard
 import dev.plantapp.domain.model.Plant
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -31,7 +35,13 @@ fun PlantListScreen(
 ) {
     Scaffold(
         modifier = modifier,
-        topBar = { TopAppBar(title = { Text("My plants") }) },
+        containerColor = Color.Transparent,
+        topBar = {
+            TopAppBar(
+                title = { Text("My plants", style = MaterialTheme.typography.headlineSmall) },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
+            )
+        },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onAddClick,
@@ -51,8 +61,8 @@ fun PlantListScreen(
                     Text(text = "Couldn't load plants: ${state.message}")
                 is PlantListUiState.Content ->
                     LazyColumn(
-                        modifier = Modifier.fillMaxSize().testTag(InventoryTestTags.PLANT_LIST),
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp).testTag(InventoryTestTags.PLANT_LIST),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
                         items(state.plants, key = { it.id }) { plant -> PlantRow(plant, onPlantClick) }
                     }
@@ -63,11 +73,14 @@ fun PlantListScreen(
 
 @Composable
 private fun PlantRow(plant: Plant, onPlantClick: (String) -> Unit) {
-    Text(
-        text = plant.nickname ?: plant.profileId,
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onPlantClick(plant.id) }
-            .padding(16.dp),
-    )
+    GlassCard(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            text = plant.nickname ?: plant.profileId,
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { onPlantClick(plant.id) }
+                .padding(16.dp),
+        )
+    }
 }

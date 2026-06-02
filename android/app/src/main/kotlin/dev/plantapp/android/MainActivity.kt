@@ -21,6 +21,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import dagger.hilt.android.AndroidEntryPoint
 import dev.plantapp.data.settings.SettingsStore
+import dev.plantapp.designsystem.PlantAppBackground
 import dev.plantapp.designsystem.PlantAppTheme
 import dev.plantapp.feature.inventory.AddPlantViewModel
 import dev.plantapp.feature.inventory.addplant.AddPlantWizard
@@ -41,7 +42,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val start = if (settings.tokenBlocking() != null) Routes.LIST else Routes.SIGN_IN
-        setContent { PlantAppTheme { PlantAppNavHost(startDestination = start) } }
+        setContent { PlantAppTheme { PlantAppBackground { PlantAppNavHost(startDestination = start) } } }
     }
 }
 

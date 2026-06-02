@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -18,6 +17,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -26,10 +26,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import dev.plantapp.designsystem.GlassCard
 import dev.plantapp.domain.model.Container
 import dev.plantapp.domain.model.GardenSpace
 import dev.plantapp.domain.model.PlantProfile
@@ -90,9 +92,11 @@ fun AddPlantWizard(
 
     Scaffold(
         modifier = modifier,
+        containerColor = Color.Transparent,
         topBar = {
             TopAppBar(
-                title = { Text(title) },
+                title = { Text(title, style = MaterialTheme.typography.headlineSmall) },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
                 navigationIcon = {
                     TextButton(
                         onClick = { if (step > 1) step-- else onCancel() },
@@ -204,7 +208,6 @@ private fun TileIcon(icon: ImageVector) {
     Icon(imageVector = icon, contentDescription = null, modifier = Modifier.size(48.dp))
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun Tile(
     label: String,
@@ -212,7 +215,7 @@ private fun Tile(
     leadingIcon: @Composable () -> Unit,
     onClick: () -> Unit,
 ) {
-    Card(
+    GlassCard(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth().testTag(tag),
     ) {

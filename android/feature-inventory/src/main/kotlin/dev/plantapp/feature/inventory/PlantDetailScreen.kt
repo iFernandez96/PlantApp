@@ -14,11 +14,14 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import dev.plantapp.designsystem.GlassCard
 import dev.plantapp.domain.model.Advisory
 import dev.plantapp.domain.model.CareTask
 import java.time.Instant
@@ -36,7 +39,13 @@ fun PlantDetailScreen(
 ) {
     Scaffold(
         modifier = modifier,
-        topBar = { TopAppBar(title = { Text("Plant detail") }) },
+        containerColor = Color.Transparent,
+        topBar = {
+            TopAppBar(
+                title = { Text("Plant detail", style = MaterialTheme.typography.headlineSmall) },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
+            )
+        },
     ) { padding ->
         when (state) {
             is PlantDetailUiState.Loading ->
@@ -66,9 +75,13 @@ fun PlantDetailScreen(
 
 @Composable
 private fun CareTaskCard(task: CareTask) {
-    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        Text(
-            text = "Next: ${task.kind}",
+    GlassCard(modifier = Modifier.fillMaxWidth()) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp),
+        ) {
+            Text(
+                text = "Next: ${task.kind}",
             style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.testTag(InventoryTestTags.TASK_KIND),
         )
@@ -90,6 +103,7 @@ private fun CareTaskCard(task: CareTask) {
                 style = MaterialTheme.typography.labelSmall,
             )
         }
+        }
     }
 }
 
@@ -110,12 +124,7 @@ private val ACCEPTABLE_ADVISORY_KINDS = setOf("container-size", "support")
 
 @Composable
 private fun AdvisoryRow(advisory: Advisory, onAccept: (kind: String) -> Unit) {
-    val container = when (advisory.severity) {
-        "high" -> MaterialTheme.colorScheme.errorContainer
-        "medium" -> MaterialTheme.colorScheme.tertiaryContainer
-        else -> MaterialTheme.colorScheme.surfaceVariant
-    }
-    Surface(color = container, modifier = Modifier.fillMaxWidth()) {
+    GlassCard(modifier = Modifier.fillMaxWidth()) {
         Column(
             modifier = Modifier.padding(12.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp),
