@@ -27,18 +27,7 @@ object AddPlantWizardModel {
         LocationPreset("Indoors", "indoor"),
     )
 
-    /** Plant-category → emoji icon (data-driven via PlantProfile.category; NOT per-species). */
-    fun categoryIcon(category: String): String = when (category.lowercase()) {
-        "fruit" -> "🍅"
-        "berry" -> "🍓"
-        "herb" -> "🌿"
-        "vegetable" -> "🥬"
-        "vine" -> "🍇"
-        "root" -> "🥕"
-        "succulent" -> "🌵"
-        "ornamental" -> "🌸"
-        else -> "🌱"
-    }
+    // Icons are custom per-species vector drawables (see WizardIcons) — no emoji.
 
     // Hidden defaults the novice never sets (the engine / back end still need them):
     const val DEFAULT_MATERIAL = "plastic"

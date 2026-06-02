@@ -37,4 +37,11 @@ object InventoryTestTags {
     const val FIELD_SIGNIN_CODE = "field_signin_code"
     const val SIGNIN_VERIFY_BUTTON = "signin_verify_button"
     const val SIGNIN_ERROR = "signin_error"
+
+    // Beginner add-plant wizard (stable suffixes: profileId / location kind / pot label-slug).
+    const val WIZARD_SPECIES_TILE_PREFIX = "wizard_species_"
+    const val WIZARD_LOCATION_TILE_PREFIX = "wizard_location_"
+    const val WIZARD_POT_TILE_PREFIX = "wizard_pot_"
+    const val WIZARD_ADD_BUTTON = "wizard_add_button"
+    const val WIZARD_BACK_BUTTON = "wizard_back_button"
 }

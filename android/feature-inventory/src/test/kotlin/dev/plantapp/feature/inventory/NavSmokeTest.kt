@@ -16,6 +16,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import dev.plantapp.feature.inventory.addplant.AddPlantWizard
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
@@ -92,7 +93,7 @@ class NavSmokeTest {
                 val profiles by vm.profiles.collectAsState()
                 val gardenSpaces by vm.gardenSpaces.collectAsState()
                 val containers by vm.containers.collectAsState()
-                AddPlantScreen(
+                AddPlantWizard(
                     profiles = profiles,
                     gardenSpaces = gardenSpaces,
                     containers = containers,

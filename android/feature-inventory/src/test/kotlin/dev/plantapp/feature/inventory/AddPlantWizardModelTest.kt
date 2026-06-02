@@ -38,19 +38,9 @@ class AddPlantWizardModelTest {
     }
 
     @Test
-    fun categoryIconMapsKnownCategoriesAndFallsBackForUnknown() {
-        assertEquals("🍅", AddPlantWizardModel.categoryIcon("fruit"))
-        assertEquals("🍓", AddPlantWizardModel.categoryIcon("berry"))
-        assertEquals("🌿", AddPlantWizardModel.categoryIcon("herb"))
-        assertEquals("🥬", AddPlantWizardModel.categoryIcon("vegetable"))
-        assertEquals("🍇", AddPlantWizardModel.categoryIcon("vine"))
-        assertEquals("🥕", AddPlantWizardModel.categoryIcon("root"))
-        assertEquals("🌵", AddPlantWizardModel.categoryIcon("succulent"))
-        assertEquals("🌸", AddPlantWizardModel.categoryIcon("ornamental"))
-        // case-insensitive
-        assertEquals("🍅", AddPlantWizardModel.categoryIcon("FRUIT"))
-        // unknown / empty → fallback
-        assertEquals("🌱", AddPlantWizardModel.categoryIcon("mystery"))
-        assertEquals("🌱", AddPlantWizardModel.categoryIcon(""))
+    fun hiddenDefaultsAreSetForTheEngine() {
+        assertEquals("plastic", AddPlantWizardModel.DEFAULT_MATERIAL)
+        assertEquals("good", AddPlantWizardModel.DEFAULT_DRAINAGE)
+        assertEquals("seedling", AddPlantWizardModel.DEFAULT_GROWTH_STAGE)
     }
 }

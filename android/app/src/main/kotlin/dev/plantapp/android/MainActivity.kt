@@ -22,8 +22,8 @@ import androidx.navigation.navArgument
 import dagger.hilt.android.AndroidEntryPoint
 import dev.plantapp.data.settings.SettingsStore
 import dev.plantapp.designsystem.PlantAppTheme
-import dev.plantapp.feature.inventory.AddPlantScreen
 import dev.plantapp.feature.inventory.AddPlantViewModel
+import dev.plantapp.feature.inventory.addplant.AddPlantWizard
 import dev.plantapp.feature.inventory.NotificationPermission
 import dev.plantapp.feature.inventory.PlantDetailScreen
 import dev.plantapp.feature.inventory.PlantDetailViewModel
@@ -102,7 +102,7 @@ fun PlantAppNavHost(startDestination: String = Routes.LIST) {
             val profiles by vm.profiles.collectAsState()
             val gardenSpaces by vm.gardenSpaces.collectAsState()
             val containers by vm.containers.collectAsState()
-            AddPlantScreen(
+            AddPlantWizard(
                 profiles = profiles,
                 gardenSpaces = gardenSpaces,
                 containers = containers,
