@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- The app talks to Supabase (auth) + the Fastify API over the network. -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <!-- Slice 3: local watering reminders post a notification (Android 13+ requires this at runtime). -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
