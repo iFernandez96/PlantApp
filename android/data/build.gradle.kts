@@ -10,8 +10,20 @@ android {
     namespace = "dev.plantapp.data"
     compileSdk = 35
 
+    buildFeatures {
+        buildConfig = true
+    }
+
     defaultConfig {
         minSdk = 26
+
+        // Base URLs are build-overridable (pass -Pplantapp.apiBaseUrl / -Pplantapp.authBaseUrl to
+        // target a LAN-hosted backend from a device). Defaults are the emulator loopback values;
+        // the PlantApp API default points at the Fastify server (:3000), auth at Supabase (:54321).
+        val apiBase = (project.findProperty("plantapp.apiBaseUrl") as String?) ?: "http://10.0.2.2:3000/"
+        val authBase = (project.findProperty("plantapp.authBaseUrl") as String?) ?: "http://10.0.2.2:54321/"
+        buildConfigField("String", "API_BASE_URL", "\"$apiBase\"")
+        buildConfigField("String", "AUTH_BASE_URL", "\"$authBase\"")
     }
 
     compileOptions {

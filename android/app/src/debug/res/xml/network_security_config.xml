@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Debug-only: permit cleartext HTTP so a debug build can reach a dev/LAN-hosted backend over
+     plain http. Release builds do NOT include this config and stay default-secure (HTTPS-only). -->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true" />
+</network-security-config>
