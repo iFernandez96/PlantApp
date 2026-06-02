@@ -8,7 +8,11 @@ object InventoryTestTags {
 
     const val FIELD_PROFILE_SELECTOR = "field_profile_selector"
     const val FIELD_CONTAINER_ID = "field_container_id"
-    const val FIELD_GARDEN_SPACE_ID = "field_garden_space_id"
+    const val FIELD_GARDEN_SPACE_SELECTOR = "field_garden_space_selector"
+    const val GARDEN_SPACE_CREATE_ITEM = "garden_space_create_item"
+    const val FIELD_NEW_GARDEN_SPACE_NAME = "field_new_garden_space_name"
+    const val FIELD_NEW_GARDEN_SPACE_KIND = "field_new_garden_space_kind"
+    const val GARDEN_SPACE_CREATE_BUTTON = "garden_space_create_button"
     const val FIELD_GROWTH_STAGE = "field_growth_stage"
     const val FIELD_LAST_WATERED_AT = "field_last_watered_at"
     const val SUBMIT_BUTTON = "add_plant_submit_button"

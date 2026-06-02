@@ -2,12 +2,15 @@ package dev.plantapp.feature.inventory
 
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import dev.plantapp.domain.model.CareTask
+import dev.plantapp.domain.model.GardenSpace
 import dev.plantapp.domain.model.Plant
 import dev.plantapp.domain.model.PlantProfile
 import org.junit.Assert.assertEquals
@@ -49,6 +52,10 @@ class InventoryScreensTest {
         PlantProfile("solanum-lycopersicum", "Solanum lycopersicum", listOf("Tomato"), "fruit"),
         PlantProfile("ocimum-basilicum", "Ocimum basilicum", listOf("Basil"), "herb"),
     )
+    private val gardenSpaces = listOf(
+        GardenSpace("00000000-0000-4000-8000-000000000003", "West Balcony", "balcony"),
+        GardenSpace("00000000-0000-4000-8000-000000000004", "East Patio", "patio"),
+    )
 
     @Test
     fun `#21 list shows empty state when there are no plants`() {
@@ -59,28 +66,59 @@ class InventoryScreensTest {
     @Test
     fun `#22 add-plant submits the form when required fields are filled`() {
         var submitted: AddPlantForm? = null
-        composeRule.setContent { AddPlantScreen(profiles = profiles, onSubmit = { submitted = it }) }
+        composeRule.setContent {
+            AddPlantScreen(profiles = profiles, gardenSpaces = gardenSpaces, onCreateGardenSpace = { _, _ -> }, onSubmit = { submitted = it })
+        }
 
         // pick the profile from the dropdown
         composeRule.onNodeWithTag(InventoryTestTags.FIELD_PROFILE_SELECTOR).performClick()
         composeRule.onNodeWithText("Tomato").performClick()
+        // pick the garden space from its selector
+        composeRule.onNodeWithTag(InventoryTestTags.FIELD_GARDEN_SPACE_SELECTOR).performClick()
+        composeRule.onNodeWithText("West Balcony").performClick()
 
         composeRule.onNodeWithTag(InventoryTestTags.FIELD_CONTAINER_ID).performTextInput(plant.containerId)
-        composeRule.onNodeWithTag(InventoryTestTags.FIELD_GARDEN_SPACE_ID).performTextInput(plant.gardenSpaceId)
         composeRule.onNodeWithTag(InventoryTestTags.FIELD_GROWTH_STAGE).performTextInput("vegetative")
         composeRule.onNodeWithTag(InventoryTestTags.SUBMIT_BUTTON).performScrollTo().performClick()
 
         assertEquals("solanum-lycopersicum", submitted?.profileId)
         assertEquals(plant.containerId, submitted?.containerId)
-        assertEquals(plant.gardenSpaceId, submitted?.gardenSpaceId)
+        assertEquals("00000000-0000-4000-8000-000000000003", submitted?.gardenSpaceId)
     }
 
     @Test
     fun `add-plant profile dropdown lists catalog profiles`() {
-        composeRule.setContent { AddPlantScreen(profiles = profiles, onSubmit = {}) }
+        composeRule.setContent {
+            AddPlantScreen(profiles = profiles, gardenSpaces = gardenSpaces, onCreateGardenSpace = { _, _ -> }, onSubmit = {})
+        }
         composeRule.onNodeWithTag(InventoryTestTags.FIELD_PROFILE_SELECTOR).performClick()
         composeRule.onNodeWithText("Tomato").assertIsDisplayed()
         composeRule.onNodeWithText("Basil").assertIsDisplayed()
+    }
+
+    @Test
+    fun `garden-space selector lists existing spaces`() {
+        composeRule.setContent {
+            AddPlantScreen(profiles = profiles, gardenSpaces = gardenSpaces, onCreateGardenSpace = { _, _ -> }, onSubmit = {})
+        }
+        composeRule.onNodeWithTag(InventoryTestTags.FIELD_GARDEN_SPACE_SELECTOR).performClick()
+        // names may appear in both the anchor (auto-selected) and the menu, so match >=1
+        composeRule.onAllNodesWithText("West Balcony").onFirst().assertIsDisplayed()
+        composeRule.onAllNodesWithText("East Patio").onFirst().assertIsDisplayed()
+    }
+
+    @Test
+    fun `garden-space create path invokes callback`() {
+        var created: Pair<String, String>? = null
+        composeRule.setContent {
+            AddPlantScreen(profiles = profiles, gardenSpaces = gardenSpaces, onCreateGardenSpace = { n, k -> created = n to k }, onSubmit = {})
+        }
+        composeRule.onNodeWithTag(InventoryTestTags.FIELD_GARDEN_SPACE_SELECTOR).performClick()
+        composeRule.onNodeWithTag(InventoryTestTags.GARDEN_SPACE_CREATE_ITEM).performClick()
+        composeRule.onNodeWithTag(InventoryTestTags.FIELD_NEW_GARDEN_SPACE_NAME).performTextInput("North Ledge")
+        composeRule.onNodeWithTag(InventoryTestTags.FIELD_NEW_GARDEN_SPACE_KIND).performTextInput("window-ledge")
+        composeRule.onNodeWithTag(InventoryTestTags.GARDEN_SPACE_CREATE_BUTTON).performScrollTo().performClick()
+        assertEquals("North Ledge" to "window-ledge", created)
     }
 
     @Test
@@ -99,11 +137,14 @@ class InventoryScreensTest {
     @Test
     fun `#24 add-plant without a container shows error and does not submit`() {
         var submitted: AddPlantForm? = null
-        composeRule.setContent { AddPlantScreen(profiles = profiles, onSubmit = { submitted = it }) }
+        composeRule.setContent {
+            AddPlantScreen(profiles = profiles, gardenSpaces = gardenSpaces, onCreateGardenSpace = { _, _ -> }, onSubmit = { submitted = it })
+        }
 
         composeRule.onNodeWithTag(InventoryTestTags.FIELD_PROFILE_SELECTOR).performClick()
         composeRule.onNodeWithText("Tomato").performClick()
-        composeRule.onNodeWithTag(InventoryTestTags.FIELD_GARDEN_SPACE_ID).performTextInput(plant.gardenSpaceId)
+        composeRule.onNodeWithTag(InventoryTestTags.FIELD_GARDEN_SPACE_SELECTOR).performClick()
+        composeRule.onNodeWithText("West Balcony").performClick()
         composeRule.onNodeWithTag(InventoryTestTags.FIELD_GROWTH_STAGE).performTextInput("vegetative")
         // containerId intentionally left blank
         composeRule.onNodeWithTag(InventoryTestTags.SUBMIT_BUTTON).performScrollTo().performClick()

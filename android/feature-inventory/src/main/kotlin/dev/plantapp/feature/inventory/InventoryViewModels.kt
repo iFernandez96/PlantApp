@@ -2,6 +2,7 @@ package dev.plantapp.feature.inventory
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dev.plantapp.domain.model.GardenSpace
 import dev.plantapp.domain.model.NewPlant
 import dev.plantapp.domain.model.PlantProfile
 import dev.plantapp.domain.repository.InventoryRepository
@@ -48,12 +49,27 @@ class AddPlantViewModel @Inject constructor(
     private val _profiles = MutableStateFlow<List<PlantProfile>>(emptyList())
     val profiles: StateFlow<List<PlantProfile>> = _profiles.asStateFlow()
 
+    private val _gardenSpaces = MutableStateFlow<List<GardenSpace>>(emptyList())
+    val gardenSpaces: StateFlow<List<GardenSpace>> = _gardenSpaces.asStateFlow()
+
     init {
         viewModelScope.launch {
             try {
                 _profiles.value = repository.getPlantProfiles()
+                _gardenSpaces.value = repository.getGardenSpaces()
             } catch (e: Exception) {
-                _error.value = e.message ?: "Could not load profiles"
+                _error.value = e.message ?: "Could not load add-plant options"
+            }
+        }
+    }
+
+    fun createGardenSpace(name: String, kind: String) {
+        viewModelScope.launch {
+            try {
+                val gs = repository.createGardenSpace(name, kind)
+                _gardenSpaces.value = _gardenSpaces.value + gs
+            } catch (e: Exception) {
+                _error.value = e.message ?: "Could not create garden space"
             }
         }
     }

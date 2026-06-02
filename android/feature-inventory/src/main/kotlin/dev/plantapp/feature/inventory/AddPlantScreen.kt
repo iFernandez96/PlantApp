@@ -17,6 +17,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -24,6 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import dev.plantapp.domain.model.GardenSpace
 import dev.plantapp.domain.model.PlantProfile
 
 /** Slice 1/2 add-plant form. Profile is chosen from the catalog dropdown ([profiles]);
@@ -34,15 +36,26 @@ import dev.plantapp.domain.model.PlantProfile
 @Composable
 fun AddPlantScreen(
     profiles: List<PlantProfile>,
+    gardenSpaces: List<GardenSpace>,
+    onCreateGardenSpace: (name: String, kind: String) -> Unit,
     onSubmit: (AddPlantForm) -> Unit,
     modifier: Modifier = Modifier,
     onCancel: () -> Unit = {},
 ) {
     var selectedProfile by remember { mutableStateOf<PlantProfile?>(null) }
     var profileExpanded by remember { mutableStateOf(false) }
+    var selectedGardenSpace by remember { mutableStateOf<GardenSpace?>(null) }
+    var gardenSpaceExpanded by remember { mutableStateOf(false) }
+    var showCreateGardenSpace by remember { mutableStateOf(false) }
+    var newGardenSpaceName by remember { mutableStateOf("") }
+    var newGardenSpaceKind by remember { mutableStateOf("") }
     var containerId by remember { mutableStateOf("") }
-    var gardenSpaceId by remember { mutableStateOf("") }
     var growthStage by remember { mutableStateOf("") }
+
+    // Auto-select a freshly created space (VM appends it to gardenSpaces).
+    LaunchedEffect(gardenSpaces) {
+        if (selectedGardenSpace == null) gardenSpaces.lastOrNull()?.let { selectedGardenSpace = it }
+    }
     var lastWateredAt by remember { mutableStateOf("") }
     var containerError by remember { mutableStateOf(false) }
 
@@ -101,7 +114,63 @@ fun AddPlantScreen(
                     modifier = Modifier.testTag(InventoryTestTags.CONTAINER_ERROR),
                 )
             }
-            Field("Garden space id", gardenSpaceId, InventoryTestTags.FIELD_GARDEN_SPACE_ID) { gardenSpaceId = it }
+            ExposedDropdownMenuBox(
+                expanded = gardenSpaceExpanded,
+                onExpandedChange = { gardenSpaceExpanded = it },
+            ) {
+                OutlinedTextField(
+                    value = selectedGardenSpace?.name ?: "",
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text("Garden space") },
+                    placeholder = { Text("Select a garden space") },
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(gardenSpaceExpanded) },
+                    modifier = Modifier
+                        .menuAnchor(MenuAnchorType.PrimaryNotEditable)
+                        .fillMaxWidth()
+                        .testTag(InventoryTestTags.FIELD_GARDEN_SPACE_SELECTOR),
+                )
+                ExposedDropdownMenu(
+                    expanded = gardenSpaceExpanded,
+                    onDismissRequest = { gardenSpaceExpanded = false },
+                ) {
+                    gardenSpaces.forEach { space ->
+                        DropdownMenuItem(
+                            text = { Text(space.name) },
+                            onClick = {
+                                selectedGardenSpace = space
+                                showCreateGardenSpace = false
+                                gardenSpaceExpanded = false
+                            },
+                        )
+                    }
+                    DropdownMenuItem(
+                        text = { Text("➕ Create new garden space") },
+                        onClick = {
+                            showCreateGardenSpace = true
+                            gardenSpaceExpanded = false
+                        },
+                        modifier = Modifier.testTag(InventoryTestTags.GARDEN_SPACE_CREATE_ITEM),
+                    )
+                }
+            }
+            if (showCreateGardenSpace) {
+                Field("New garden space name", newGardenSpaceName, InventoryTestTags.FIELD_NEW_GARDEN_SPACE_NAME) {
+                    newGardenSpaceName = it
+                }
+                Field("New garden space kind", newGardenSpaceKind, InventoryTestTags.FIELD_NEW_GARDEN_SPACE_KIND) {
+                    newGardenSpaceKind = it
+                }
+                Button(
+                    onClick = {
+                        if (newGardenSpaceName.isNotBlank() && newGardenSpaceKind.isNotBlank()) {
+                            onCreateGardenSpace(newGardenSpaceName.trim(), newGardenSpaceKind.trim())
+                            showCreateGardenSpace = false
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth().testTag(InventoryTestTags.GARDEN_SPACE_CREATE_BUTTON),
+                ) { Text("Create garden space") }
+            }
             Field("Growth stage", growthStage, InventoryTestTags.FIELD_GROWTH_STAGE) { growthStage = it }
             Field("Last watered (ISO, optional)", lastWateredAt, InventoryTestTags.FIELD_LAST_WATERED_AT) {
                 lastWateredAt = it
@@ -116,7 +185,7 @@ fun AddPlantScreen(
                             AddPlantForm(
                                 profileId = (selectedProfile?.id ?: "").trim(),
                                 containerId = containerId.trim(),
-                                gardenSpaceId = gardenSpaceId.trim(),
+                                gardenSpaceId = selectedGardenSpace?.id ?: "",
                                 growthStage = growthStage.trim(),
                                 lastWateredAt = lastWateredAt.trim().ifBlank { null },
                             ),
