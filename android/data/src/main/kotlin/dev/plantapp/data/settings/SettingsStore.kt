@@ -9,12 +9,18 @@ import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 import javax.inject.Singleton
 
+/** Narrow seam for writing the auth token, so the auth repository can be unit-tested without a
+ *  real DataStore. Implemented by [SettingsStore]. */
+interface TokenWriter {
+    suspend fun setToken(token: String?)
+}
+
 /** Persists the API base URL + Supabase auth token in a Preferences DataStore.
  *  No hard-coded secrets; the token is written at sign-in (a later slice). */
 @Singleton
 class SettingsStore @Inject constructor(
     private val dataStore: DataStore<Preferences>,
-) {
+) : TokenWriter {
     private val baseUrlKey = stringPreferencesKey("api_base_url")
     private val tokenKey = stringPreferencesKey("auth_token")
 
@@ -22,7 +28,7 @@ class SettingsStore @Inject constructor(
         dataStore.edit { it[baseUrlKey] = url }
     }
 
-    suspend fun setToken(token: String?) {
+    override suspend fun setToken(token: String?) {
         dataStore.edit {
             if (token == null) it.remove(tokenKey) else it[tokenKey] = token
         }
