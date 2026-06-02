@@ -1,11 +1,21 @@
 package dev.plantapp.designsystem
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 
-/** Minimal Material 3 theme wrapper for the app. Slice 1 uses default M3 color schemes;
- *  brand theming is a later concern. */
+/** The Verdant Glasshouse Material 3 theme: brand light/dark color schemes (no dynamic color),
+ *  Fraunces/Manrope typography, and rounded shapes. Every screen reads `MaterialTheme.colorScheme/
+ *  typography/shapes`, so this re-skins the whole app. */
 @Composable
-fun PlantAppTheme(content: @Composable () -> Unit) {
-    MaterialTheme(content = content)
+fun PlantAppTheme(
+    darkTheme: Boolean = isSystemInDarkTheme(),
+    content: @Composable () -> Unit,
+) {
+    MaterialTheme(
+        colorScheme = if (darkTheme) VerdantDarkColorScheme else VerdantLightColorScheme,
+        typography = PlantAppTypography,
+        shapes = PlantAppShapes,
+        content = content,
+    )
 }
