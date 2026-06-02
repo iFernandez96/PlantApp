@@ -8,6 +8,7 @@ import { randomUUID } from 'node:crypto';
 import { computeInitialWaterTask } from '../care-engine/index.js';
 import { loadConfig } from './config.js';
 import { makeAuthHook } from './auth.js';
+import { toGardenSpace, toContainer, toPlantInstance, toCareTask } from './mappers.js';
 
 export async function buildApp(): Promise<FastifyInstance> {
   const config = loadConfig();
@@ -56,7 +57,7 @@ export async function buildApp(): Promise<FastifyInstance> {
         .select()
         .single();
       if (error) return reply.code(400).send({ error: error.message });
-      return reply.code(201).send(data);
+      return reply.code(201).send(toGardenSpace(data as Record<string, unknown>));
     },
   );
 
@@ -108,7 +109,7 @@ export async function buildApp(): Promise<FastifyInstance> {
         .select()
         .single();
       if (error) return reply.code(400).send({ error: error.message });
-      return reply.code(201).send(data);
+      return reply.code(201).send(toContainer(data as Record<string, unknown>));
     },
   );
 
@@ -251,7 +252,7 @@ export async function buildApp(): Promise<FastifyInstance> {
         .single();
       if (taskInsert.error) return reply.code(400).send({ error: taskInsert.error.message });
 
-      return reply.code(201).send({ plant, task });
+      return reply.code(201).send({ plant: toPlantInstance(plant as Record<string, unknown>), task });
     },
   );
 
@@ -262,7 +263,7 @@ export async function buildApp(): Promise<FastifyInstance> {
       .select('*')
       .order('created_at', { ascending: true });
     if (error) return reply.code(400).send({ error: error.message });
-    return reply.code(200).send(data ?? []);
+    return reply.code(200).send((data ?? []).map((r) => toPlantInstance(r as Record<string, unknown>)));
   });
 
   // GET /plants/:id — the caller's single plant; 404 if not visible/owned.
@@ -275,7 +276,7 @@ export async function buildApp(): Promise<FastifyInstance> {
       .maybeSingle();
     if (error) return reply.code(400).send({ error: error.message });
     if (!data) return reply.code(404).send({ error: 'not_found' });
-    return reply.code(200).send(data);
+    return reply.code(200).send(toPlantInstance(data as Record<string, unknown>));
   });
 
   // GET /plants/:id/tasks
@@ -290,7 +291,7 @@ export async function buildApp(): Promise<FastifyInstance> {
         .eq('plant_instance_id', id)
         .order('created_at', { ascending: true });
       if (error) return reply.code(400).send({ error: error.message });
-      return reply.code(200).send(data ?? []);
+      return reply.code(200).send((data ?? []).map((r) => toCareTask(r as Record<string, unknown>)));
     },
   );
 
