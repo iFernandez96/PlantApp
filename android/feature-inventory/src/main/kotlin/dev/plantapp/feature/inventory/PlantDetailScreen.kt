@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import dev.plantapp.domain.model.Advisory
 import dev.plantapp.domain.model.CareTask
 import java.time.Instant
 import java.time.ZoneId
@@ -55,6 +56,7 @@ fun PlantDetailScreen(
                     )
                     Text("Growth stage: ${state.plant.growthStage}")
                     if (state.task != null) CareTaskCard(state.task) else Text("No care task yet.")
+                    if (state.advisories.isNotEmpty()) AdvisoriesSection(state.advisories)
                 }
         }
     }
@@ -85,6 +87,38 @@ private fun CareTaskCard(task: CareTask) {
                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                 style = MaterialTheme.typography.labelSmall,
             )
+        }
+    }
+}
+
+@Composable
+private fun AdvisoriesSection(advisories: List<Advisory>) {
+    Column(
+        modifier = Modifier.fillMaxWidth().testTag(InventoryTestTags.ADVISORY_SECTION),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Text(text = "Advisories", style = MaterialTheme.typography.titleMedium)
+        for (advisory in advisories) AdvisoryRow(advisory)
+    }
+}
+
+@Composable
+private fun AdvisoryRow(advisory: Advisory) {
+    val container = when (advisory.severity) {
+        "high" -> MaterialTheme.colorScheme.errorContainer
+        "medium" -> MaterialTheme.colorScheme.tertiaryContainer
+        else -> MaterialTheme.colorScheme.surfaceVariant
+    }
+    Surface(color = container, modifier = Modifier.fillMaxWidth()) {
+        Column(
+            modifier = Modifier.padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            Text(
+                text = "${advisory.severity.uppercase(Locale.US)} · ${advisory.title}",
+                style = MaterialTheme.typography.titleSmall,
+            )
+            Text(text = advisory.message, style = MaterialTheme.typography.bodyMedium)
         }
     }
 }

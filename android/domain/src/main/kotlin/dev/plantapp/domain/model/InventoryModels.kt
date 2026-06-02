@@ -56,3 +56,14 @@ data class AddPlantResult(
     val plant: Plant,
     val task: CareTask,
 )
+
+/** Backend-computed, profile-driven advisory. Informational only — Android displays it
+ *  and never computes it or turns it into a CareTask. */
+data class Advisory(
+    val kind: String,
+    val severity: String,
+    val plantInstanceId: String,
+    val profileId: String,
+    val title: String,
+    val message: String,
+)

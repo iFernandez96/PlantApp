@@ -1,5 +1,6 @@
 package dev.plantapp.feature.inventory
 
+import dev.plantapp.domain.model.Advisory
 import dev.plantapp.domain.model.CareTask
 import dev.plantapp.domain.model.Plant
 
@@ -14,7 +15,11 @@ sealed interface PlantListUiState {
 /** UI state for the plant detail screen. */
 sealed interface PlantDetailUiState {
     data object Loading : PlantDetailUiState
-    data class Content(val plant: Plant, val task: CareTask?) : PlantDetailUiState
+    data class Content(
+        val plant: Plant,
+        val task: CareTask?,
+        val advisories: List<Advisory> = emptyList(),
+    ) : PlantDetailUiState
     data class Error(val message: String) : PlantDetailUiState
 }
 

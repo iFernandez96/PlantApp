@@ -1,6 +1,7 @@
 package dev.plantapp.data.mapper
 
 import dev.plantapp.domain.model.AddPlantResult
+import dev.plantapp.domain.model.Advisory
 import dev.plantapp.domain.model.CareTask
 import dev.plantapp.domain.model.Container
 import dev.plantapp.domain.model.GardenSpace
@@ -8,6 +9,7 @@ import dev.plantapp.domain.model.NewPlant
 import dev.plantapp.domain.model.Plant
 import dev.plantapp.network.AddPlantRequest
 import dev.plantapp.network.AddPlantResponse
+import dev.plantapp.network.AdvisoryDto
 import dev.plantapp.network.CareTaskDto
 import dev.plantapp.network.ContainerDto
 import dev.plantapp.network.GardenSpaceDto
@@ -48,6 +50,15 @@ fun CareTaskDto.toDomain(): CareTask = CareTask(
 
 fun AddPlantResponse.toDomain(): AddPlantResult =
     AddPlantResult(plant = plant.toDomain(), task = task.toDomain())
+
+fun AdvisoryDto.toDomain(): Advisory = Advisory(
+    kind = kind,
+    severity = severity,
+    plantInstanceId = plantInstanceId,
+    profileId = profileId,
+    title = title,
+    message = message,
+)
 
 fun NewPlant.toRequest(): AddPlantRequest = AddPlantRequest(
     profileId = profileId,

@@ -2,6 +2,7 @@ package dev.plantapp.data
 
 import dev.plantapp.network.AddPlantRequest
 import dev.plantapp.network.AddPlantResponse
+import dev.plantapp.network.AdvisoryDto
 import dev.plantapp.network.CareTaskDto
 import dev.plantapp.network.ContainerDto
 import dev.plantapp.network.CreateContainerRequest
@@ -71,9 +72,19 @@ class FakePlantAppApi : PlantAppApi {
         lastAddPlantRequest = body
         return AddPlantResponse(plant = plant, task = task)
     }
+    val advisory = AdvisoryDto(
+        kind = "container-size",
+        severity = "high",
+        plantInstanceId = plant.id,
+        profileId = plant.profileId,
+        title = "Container is smaller than recommended",
+        message = "Passion fruit prefers at least 95 L (ideal 95-190 L); this container is 19 L.",
+    )
+
     override suspend fun listPlants(): List<PlantInstanceDto> = listOf(plant)
     override suspend fun getPlant(id: String): PlantInstanceDto = plant
     override suspend fun getPlantTasks(id: String): List<CareTaskDto> = listOf(task)
+    override suspend fun getAdvisories(id: String): List<AdvisoryDto> = listOf(advisory)
     override suspend fun deletePlant(id: String): Response<Unit> {
         deleted += id
         return Response.success(Unit)

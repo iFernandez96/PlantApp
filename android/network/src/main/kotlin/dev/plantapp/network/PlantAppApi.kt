@@ -27,6 +27,9 @@ interface PlantAppApi {
     @GET("plants/{id}/tasks")
     suspend fun getPlantTasks(@Path("id") id: String): List<CareTaskDto>
 
+    @GET("plants/{id}/advisories")
+    suspend fun getAdvisories(@Path("id") id: String): List<AdvisoryDto>
+
     @DELETE("plants/{id}")
     suspend fun deletePlant(@Path("id") id: String): retrofit2.Response<Unit>
 }

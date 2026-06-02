@@ -1,6 +1,7 @@
 package dev.plantapp.domain.repository
 
 import dev.plantapp.domain.model.AddPlantResult
+import dev.plantapp.domain.model.Advisory
 import dev.plantapp.domain.model.CareTask
 import dev.plantapp.domain.model.Container
 import dev.plantapp.domain.model.GardenSpace
@@ -20,5 +21,6 @@ interface InventoryRepository {
     suspend fun addPlant(newPlant: NewPlant): AddPlantResult
     suspend fun getPlants(): List<Plant>
     suspend fun getPlantTasks(plantId: String): List<CareTask>
+    suspend fun getAdvisories(plantId: String): List<Advisory>
     suspend fun deletePlant(plantId: String)
 }

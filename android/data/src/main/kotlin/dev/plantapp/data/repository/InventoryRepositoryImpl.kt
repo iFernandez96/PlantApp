@@ -3,6 +3,7 @@ package dev.plantapp.data.repository
 import dev.plantapp.data.mapper.toDomain
 import dev.plantapp.data.mapper.toRequest
 import dev.plantapp.domain.model.AddPlantResult
+import dev.plantapp.domain.model.Advisory
 import dev.plantapp.domain.model.CareTask
 import dev.plantapp.domain.model.Container
 import dev.plantapp.domain.model.GardenSpace
@@ -46,6 +47,9 @@ class InventoryRepositoryImpl @Inject constructor(
 
     override suspend fun getPlantTasks(plantId: String): List<CareTask> =
         api.getPlantTasks(plantId).map { it.toDomain() }
+
+    override suspend fun getAdvisories(plantId: String): List<Advisory> =
+        api.getAdvisories(plantId).map { it.toDomain() }
 
     override suspend fun deletePlant(plantId: String) {
         val response = api.deletePlant(plantId)

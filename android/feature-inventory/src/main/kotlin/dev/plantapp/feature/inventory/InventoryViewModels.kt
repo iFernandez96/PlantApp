@@ -81,7 +81,8 @@ class PlantDetailViewModel @Inject constructor(
                     PlantDetailUiState.Error("Plant not found")
                 } else {
                     val task = repository.getPlantTasks(plantId).firstOrNull()
-                    PlantDetailUiState.Content(plant = plant, task = task)
+                    val advisories = repository.getAdvisories(plantId)
+                    PlantDetailUiState.Content(plant = plant, task = task, advisories = advisories)
                 }
             } catch (e: Exception) {
                 PlantDetailUiState.Error(e.message ?: "unknown error")

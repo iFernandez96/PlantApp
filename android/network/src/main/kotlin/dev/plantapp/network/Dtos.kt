@@ -1,6 +1,7 @@
 package dev.plantapp.network
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonObject
 
 // Slice 1 network DTOs. camelCase, matching the backend API responses and the
 // cross-boundary shared-schemas/*.schema.json (D-06). Optional fields are nullable
@@ -132,4 +133,17 @@ data class AddPlantRequest(
 data class AddPlantResponse(
     val plant: PlantInstanceDto,
     val task: CareTaskDto,
+)
+
+/** Slice 2 — a backend-computed, profile-driven advisory (advisory.schema.json). */
+@Serializable
+data class AdvisoryDto(
+    val kind: String,
+    val severity: String,
+    val plantInstanceId: String,
+    val profileId: String,
+    val title: String,
+    val message: String,
+    val details: JsonObject? = null,
+    val createdAt: String? = null,
 )
