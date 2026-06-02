@@ -52,14 +52,15 @@ shared-schemas (D-06).
   `advisory.schema.json`) + integration tests.
 - **S2.3:** Android display of advisories on the plant detail screen (+ UI test).
 
-## Seed-data gap (to address in S2.1)
+## Seed-data gap (addressed in S2.2)
 
 The Slice 1 seed profiles (`backend/care-engine/seed-profiles.ts` and the
-`plant_profiles` migration) carry `containerProfile.recommendedMinLiters` but **not**
+`plant_profiles` migration) carried `containerProfile.recommendedMinLiters` but **not**
 `idealMinLiters` / `idealMaxLiters`. The container-size advisory cites an ideal range when
-present, so S2.1 will enrich the seed where appropriate (e.g. passion fruit ideal 95–190 L)
-— keeping `plant-profile.schema.json` (which already allows `idealMinLiters`/`idealMaxLiters`)
-and the seed in sync, with the schema/engine tests covering it.
+present, so **S2.2** enriched the seed + DB where appropriate (passion fruit ideal 95–190 L;
+migration `0004_slice1_profile_ideal_range.sql` jsonb-merges ideal ranges into the seeded
+`plant_profiles`, and `seed-profiles.ts` mirrors them) — keeping `plant-profile.schema.json`
+(which already allows `idealMinLiters`/`idealMaxLiters`) and the seed in sync.
 
 ## In scope (Slice 2)
 

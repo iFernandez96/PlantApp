@@ -6,6 +6,7 @@
 import Fastify, { type FastifyInstance } from 'fastify';
 import { randomUUID } from 'node:crypto';
 import { computeInitialWaterTask } from '../care-engine/index.js';
+import { computeAdvisories } from '../care-engine/advisories.js';
 import { loadConfig } from './config.js';
 import { makeAuthHook } from './auth.js';
 import { toGardenSpace, toContainer, toPlantInstance, toCareTask } from './mappers.js';
@@ -294,6 +295,87 @@ export async function buildApp(): Promise<FastifyInstance> {
       return reply.code(200).send((data ?? []).map((r) => toCareTask(r as Record<string, unknown>)));
     },
   );
+
+  // GET /plants/:id/advisories — deterministic, profile-driven advisories (Slice 2).
+  // Computed on read from the plant/profile/container + the caller's instance count for
+  // the profile. RLS-scoped (404 if the plant isn't owned/visible). Creates no CareTask.
+  app.get('/plants/:id/advisories', { onRequest: requireAuth }, async (request, reply) => {
+    const { id } = request.params as { id: string };
+    const supabase = request.supabase;
+
+    const plantRes = await supabase
+      .from('plant_instances')
+      .select('id, profile_id, container_id, support_recorded')
+      .eq('id', id)
+      .maybeSingle();
+    if (plantRes.error) return reply.code(400).send({ error: plantRes.error.message });
+    if (!plantRes.data) return reply.code(404).send({ error: 'not_found' });
+    const plant = plantRes.data as {
+      id: string;
+      profile_id: string;
+      container_id: string;
+      support_recorded: boolean | null;
+    };
+
+    const profileRes = await supabase
+      .from('plant_profiles')
+      .select(
+        'id, common_names, requires_support, self_fruitful, pollination_partners_required, container_profile',
+      )
+      .eq('id', plant.profile_id)
+      .maybeSingle();
+    if (profileRes.error) return reply.code(400).send({ error: profileRes.error.message });
+    if (!profileRes.data) return reply.code(400).send({ error: 'profile not found' });
+    const profile = profileRes.data as {
+      id: string;
+      common_names: string[];
+      requires_support: boolean | null;
+      self_fruitful: boolean | null;
+      pollination_partners_required: number | null;
+      container_profile: {
+        recommendedMinLiters: number;
+        idealMinLiters?: number;
+        idealMaxLiters?: number;
+      };
+    };
+
+    const containerRes = await supabase
+      .from('containers')
+      .select('volume_liters')
+      .eq('id', plant.container_id)
+      .maybeSingle();
+    if (containerRes.error) return reply.code(400).send({ error: containerRes.error.message });
+    if (!containerRes.data) return reply.code(400).send({ error: 'container not found' });
+    const container = containerRes.data as { volume_liters: number };
+
+    // Count the caller's active instances of this profile (RLS scopes the count to the user).
+    const countRes = await supabase
+      .from('plant_instances')
+      .select('id', { count: 'exact', head: true })
+      .eq('profile_id', plant.profile_id);
+    if (countRes.error) return reply.code(400).send({ error: countRes.error.message });
+    const profileInstanceCount = countRes.count ?? 0;
+
+    const advisories = computeAdvisories({
+      plant: {
+        id: plant.id,
+        profileId: plant.profile_id,
+        supportRecorded: plant.support_recorded ?? false,
+      },
+      profile: {
+        id: profile.id,
+        commonNames: profile.common_names,
+        requiresSupport: profile.requires_support ?? false,
+        selfFruitful: profile.self_fruitful,
+        pollinationPartnersRequired: profile.pollination_partners_required ?? 0,
+        containerProfile: profile.container_profile,
+      },
+      container: { volumeLiters: Number(container.volume_liters) },
+      profileInstanceCount,
+    });
+
+    return reply.code(200).send(advisories);
+  });
 
   // DELETE /plants/:id — delete the caller's plant; 204 on success, 404 if not owned.
   // care_tasks rows cascade via the plant_instances → care_tasks ON DELETE CASCADE FK.

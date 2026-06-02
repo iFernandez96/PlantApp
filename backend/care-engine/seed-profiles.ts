@@ -12,7 +12,7 @@ export interface SeedPlantProfile {
   pollinationPartnersRequired?: number;
   wateringProfile: { baseIntervalDays: number; dryingTolerance: string };
   feedingProfile: { baseIntervalDays: number; fruitingIntervalDays?: number; postHarvestIntervalDays?: number };
-  containerProfile: { recommendedMinLiters: number };
+  containerProfile: { recommendedMinLiters: number; idealMinLiters?: number; idealMaxLiters?: number };
   lightProfile: { targetSunHours: number };
   temperatureProfile: { frostSensitive: boolean };
   version: number;
@@ -29,7 +29,7 @@ export const seedProfiles: SeedPlantProfile[] = [
     selfFruitful: true,
     wateringProfile: { baseIntervalDays: 3, dryingTolerance: 'medium' },
     feedingProfile: { baseIntervalDays: 14 },
-    containerProfile: { recommendedMinLiters: 95 },
+    containerProfile: { recommendedMinLiters: 95, idealMinLiters: 95, idealMaxLiters: 190 },
     lightProfile: { targetSunHours: 6 },
     temperatureProfile: { frostSensitive: true },
     version: 1,
@@ -44,7 +44,7 @@ export const seedProfiles: SeedPlantProfile[] = [
     selfFruitful: true,
     wateringProfile: { baseIntervalDays: 2, dryingTolerance: 'low' },
     feedingProfile: { baseIntervalDays: 7, fruitingIntervalDays: 5 },
-    containerProfile: { recommendedMinLiters: 19 },
+    containerProfile: { recommendedMinLiters: 19, idealMinLiters: 19, idealMaxLiters: 40 },
     lightProfile: { targetSunHours: 8 },
     temperatureProfile: { frostSensitive: true },
     version: 1,
@@ -59,7 +59,7 @@ export const seedProfiles: SeedPlantProfile[] = [
     pollinationPartnersRequired: 2,
     wateringProfile: { baseIntervalDays: 3, dryingTolerance: 'medium' },
     feedingProfile: { baseIntervalDays: 10 },
-    containerProfile: { recommendedMinLiters: 19 },
+    containerProfile: { recommendedMinLiters: 19, idealMinLiters: 19, idealMaxLiters: 40 },
     lightProfile: { targetSunHours: 7 },
     temperatureProfile: { frostSensitive: true },
     version: 1,
@@ -73,7 +73,7 @@ export const seedProfiles: SeedPlantProfile[] = [
     selfFruitful: true,
     wateringProfile: { baseIntervalDays: 2, dryingTolerance: 'low' },
     feedingProfile: { baseIntervalDays: 14, postHarvestIntervalDays: 21 },
-    containerProfile: { recommendedMinLiters: 4 },
+    containerProfile: { recommendedMinLiters: 4, idealMinLiters: 4, idealMaxLiters: 10 },
     lightProfile: { targetSunHours: 6 },
     temperatureProfile: { frostSensitive: false },
     version: 1,
@@ -87,7 +87,7 @@ export const seedProfiles: SeedPlantProfile[] = [
     selfFruitful: true,
     wateringProfile: { baseIntervalDays: 1.5, dryingTolerance: 'low' },
     feedingProfile: { baseIntervalDays: 14 },
-    containerProfile: { recommendedMinLiters: 3 },
+    containerProfile: { recommendedMinLiters: 3, idealMinLiters: 3, idealMaxLiters: 8 },
     lightProfile: { targetSunHours: 6 },
     temperatureProfile: { frostSensitive: true },
     version: 1,
