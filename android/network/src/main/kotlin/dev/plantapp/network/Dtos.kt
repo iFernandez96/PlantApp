@@ -131,6 +131,9 @@ data class AddPlantRequest(
 )
 
 @Serializable
+data class AcceptAdvisoryRequest(val kind: String)
+
+@Serializable
 data class AddPlantResponse(
     val plant: PlantInstanceDto,
     val task: CareTaskDto,

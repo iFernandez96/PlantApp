@@ -11,6 +11,7 @@ import dev.plantapp.domain.model.NewPlant
 import dev.plantapp.domain.model.Plant
 import dev.plantapp.domain.model.PlantProfile
 import dev.plantapp.domain.repository.InventoryRepository
+import dev.plantapp.network.AcceptAdvisoryRequest
 import dev.plantapp.network.CreateContainerRequest
 import dev.plantapp.network.CreateGardenSpaceRequest
 import dev.plantapp.network.PlantAppApi
@@ -60,6 +61,9 @@ class InventoryRepositoryImpl @Inject constructor(
 
     override suspend fun getAdvisories(plantId: String): List<Advisory> =
         api.getAdvisories(plantId).map { it.toDomain() }
+
+    override suspend fun acceptAdvisory(plantId: String, kind: String): CareTask =
+        api.acceptAdvisory(plantId, AcceptAdvisoryRequest(kind)).toDomain()
 
     override suspend fun deletePlant(plantId: String) {
         val response = api.deletePlant(plantId)

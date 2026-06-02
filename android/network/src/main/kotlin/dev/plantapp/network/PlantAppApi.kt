@@ -39,6 +39,9 @@ interface PlantAppApi {
     @GET("plants/{id}/advisories")
     suspend fun getAdvisories(@Path("id") id: String): List<AdvisoryDto>
 
+    @POST("plants/{id}/advisories/accept")
+    suspend fun acceptAdvisory(@Path("id") id: String, @Body body: AcceptAdvisoryRequest): CareTaskDto
+
     @DELETE("plants/{id}")
     suspend fun deletePlant(@Path("id") id: String): retrofit2.Response<Unit>
 }

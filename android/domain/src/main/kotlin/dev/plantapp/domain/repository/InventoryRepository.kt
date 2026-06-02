@@ -26,5 +26,9 @@ interface InventoryRepository {
     suspend fun getPlants(): List<Plant>
     suspend fun getPlantTasks(plantId: String): List<CareTask>
     suspend fun getAdvisories(plantId: String): List<Advisory>
+
+    /** Accept a currently-applicable advisory; the backend creates a deterministic CareTask and
+     *  returns it. Android holds no care logic (D-09) — the task is computed server-side. */
+    suspend fun acceptAdvisory(plantId: String, kind: String): CareTask
     suspend fun deletePlant(plantId: String)
 }

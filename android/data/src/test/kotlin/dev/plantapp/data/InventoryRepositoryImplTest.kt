@@ -94,6 +94,16 @@ class InventoryRepositoryImplTest {
     }
 
     @Test
+    fun acceptAdvisoryMapsTheReturnedCareTask() = runTest {
+        val api = FakePlantAppApi()
+        val task = repo(api).acceptAdvisory(api.plant.id, "container-size")
+        assertEquals(api.plant.id to "container-size", api.lastAccept)
+        assertEquals(api.task.id, task.id)
+        assertEquals(api.task.kind, task.kind)
+        assertEquals(api.task.engineVersion, task.engineVersion)
+    }
+
+    @Test
     fun getGardenSpacesAndContainersMapToDomain() = runTest {
         val api = FakePlantAppApi()
         val spaces = repo(api).getGardenSpaces()

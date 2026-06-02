@@ -1,5 +1,6 @@
 package dev.plantapp.data
 
+import dev.plantapp.network.AcceptAdvisoryRequest
 import dev.plantapp.network.AddPlantRequest
 import dev.plantapp.network.AddPlantResponse
 import dev.plantapp.network.AdvisoryDto
@@ -21,6 +22,7 @@ import retrofit2.Response
 class FakePlantAppApi : PlantAppApi {
     val deleted = mutableListOf<String>()
     var lastAddPlantRequest: AddPlantRequest? = null
+    var lastAccept: Pair<String, String>? = null
 
     val gardenSpace = GardenSpaceDto(
         id = "00000000-0000-4000-8000-000000000003",
@@ -108,6 +110,8 @@ class FakePlantAppApi : PlantAppApi {
     override suspend fun getPlant(id: String): PlantInstanceDto = plant
     override suspend fun getPlantTasks(id: String): List<CareTaskDto> = listOf(task)
     override suspend fun getAdvisories(id: String): List<AdvisoryDto> = listOf(advisory)
+    override suspend fun acceptAdvisory(id: String, body: AcceptAdvisoryRequest): CareTaskDto =
+        task.also { lastAccept = id to body.kind }
     override suspend fun deletePlant(id: String): Response<Unit> {
         deleted += id
         return Response.success(Unit)
