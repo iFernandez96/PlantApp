@@ -22,21 +22,30 @@ android {
     kotlinOptions {
         jvmTarget = "17"
     }
+
+    testOptions {
+        unitTests.all {
+            it.useJUnit()
+        }
+    }
 }
 
 dependencies {
     implementation(project(":domain"))
     implementation(project(":network"))
 
-    implementation(libs.room.runtime)
-    implementation(libs.room.ktx)
-    ksp(libs.room.compiler)
-
+    // Room is deferred (Slice 1 reads live from the backend; no offline cache yet — D-09).
     implementation(libs.datastore.preferences)
 
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
 
+    implementation(libs.retrofit) // for retrofit2.Response handling in the repository impl
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.serialization.json)
+
+    testImplementation(libs.junit)
+    testImplementation(libs.kotlin.test.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.retrofit)
 }
