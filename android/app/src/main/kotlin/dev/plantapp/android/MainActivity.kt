@@ -1,11 +1,18 @@
 package dev.plantapp.android
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -17,6 +24,7 @@ import dev.plantapp.data.settings.SettingsStore
 import dev.plantapp.designsystem.PlantAppTheme
 import dev.plantapp.feature.inventory.AddPlantScreen
 import dev.plantapp.feature.inventory.AddPlantViewModel
+import dev.plantapp.feature.inventory.NotificationPermission
 import dev.plantapp.feature.inventory.PlantDetailScreen
 import dev.plantapp.feature.inventory.PlantDetailViewModel
 import dev.plantapp.feature.inventory.PlantListScreen
@@ -68,6 +76,21 @@ fun PlantAppNavHost(startDestination: String = Routes.LIST) {
         composable(Routes.LIST) {
             val vm: PlantListViewModel = hiltViewModel()
             val state by vm.state.collectAsState()
+            // Slice 3: ask for POST_NOTIFICATIONS once (Android 13+) so scheduled local reminders
+            // can show. The Worker also guards on the live permission, so the result is a no-op here.
+            val context = LocalContext.current
+            val launcher = rememberLauncherForActivityResult(
+                ActivityResultContracts.RequestPermission(),
+            ) {}
+            LaunchedEffect(Unit) {
+                val granted = ContextCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.POST_NOTIFICATIONS,
+                ) == PackageManager.PERMISSION_GRANTED
+                if (NotificationPermission.shouldRequest(Build.VERSION.SDK_INT, granted)) {
+                    launcher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                }
+            }
             PlantListScreen(
                 state = state,
                 onAddClick = { nav.navigate(Routes.ADD) },
