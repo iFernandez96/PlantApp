@@ -103,7 +103,11 @@ fun PlantAppNavHost(startDestination: String = Routes.LIST) {
             val vm: PlantDetailViewModel = hiltViewModel()
             LaunchedEffect(plantId) { vm.loadFor(plantId) }
             val state by vm.state.collectAsState()
-            PlantDetailScreen(state = state, onBack = { nav.popBackStack() })
+            PlantDetailScreen(
+                state = state,
+                onAccept = { kind -> vm.accept(plantId, kind) },
+                onBack = { nav.popBackStack() },
+            )
         }
     }
 }

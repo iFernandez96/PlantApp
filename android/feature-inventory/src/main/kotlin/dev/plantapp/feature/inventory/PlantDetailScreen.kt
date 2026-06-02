@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -29,6 +30,7 @@ import java.util.Locale
 @Composable
 fun PlantDetailScreen(
     state: PlantDetailUiState,
+    onAccept: (kind: String) -> Unit = {},
     modifier: Modifier = Modifier,
     onBack: () -> Unit = {},
 ) {
@@ -56,7 +58,7 @@ fun PlantDetailScreen(
                     )
                     Text("Growth stage: ${state.plant.growthStage}")
                     if (state.task != null) CareTaskCard(state.task) else Text("No care task yet.")
-                    if (state.advisories.isNotEmpty()) AdvisoriesSection(state.advisories)
+                    if (state.advisories.isNotEmpty()) AdvisoriesSection(state.advisories, onAccept)
                 }
         }
     }
@@ -92,18 +94,22 @@ private fun CareTaskCard(task: CareTask) {
 }
 
 @Composable
-private fun AdvisoriesSection(advisories: List<Advisory>) {
+private fun AdvisoriesSection(advisories: List<Advisory>, onAccept: (kind: String) -> Unit) {
     Column(
         modifier = Modifier.fillMaxWidth().testTag(InventoryTestTags.ADVISORY_SECTION),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Text(text = "Advisories", style = MaterialTheme.typography.titleMedium)
-        for (advisory in advisories) AdvisoryRow(advisory)
+        for (advisory in advisories) AdvisoryRow(advisory, onAccept)
     }
 }
 
+// Advisory kinds that map to a single actionable CareTask the user can accept. Others (e.g.
+// "pollination", which means "grow another plant") show no Accept button — the backend 400s them.
+private val ACCEPTABLE_ADVISORY_KINDS = setOf("container-size", "support")
+
 @Composable
-private fun AdvisoryRow(advisory: Advisory) {
+private fun AdvisoryRow(advisory: Advisory, onAccept: (kind: String) -> Unit) {
     val container = when (advisory.severity) {
         "high" -> MaterialTheme.colorScheme.errorContainer
         "medium" -> MaterialTheme.colorScheme.tertiaryContainer
@@ -119,6 +125,16 @@ private fun AdvisoryRow(advisory: Advisory) {
                 style = MaterialTheme.typography.titleSmall,
             )
             Text(text = advisory.message, style = MaterialTheme.typography.bodyMedium)
+            if (advisory.kind in ACCEPTABLE_ADVISORY_KINDS) {
+                Button(
+                    onClick = { onAccept(advisory.kind) },
+                    modifier = Modifier.testTag(
+                        InventoryTestTags.ADVISORY_ACCEPT_BUTTON_PREFIX + advisory.kind,
+                    ),
+                ) {
+                    Text("Accept")
+                }
+            }
         }
     }
 }

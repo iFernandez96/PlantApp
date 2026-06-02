@@ -4,6 +4,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import dev.plantapp.domain.model.Advisory
 import dev.plantapp.domain.model.CareTask
 import dev.plantapp.domain.model.Plant
@@ -58,6 +59,43 @@ class PlantDetailAdvisoriesTest {
         composeRule.onNodeWithText(advisory.title, substring = true).assertIsDisplayed()
         composeRule.onNodeWithText(advisory.message, substring = true).assertIsDisplayed()
         composeRule.onNodeWithText("HIGH", substring = true, ignoreCase = true).assertIsDisplayed()
+    }
+
+    private val pollinationAdvisory = Advisory(
+        kind = "pollination",
+        severity = "medium",
+        plantInstanceId = plant.id,
+        profileId = plant.profileId,
+        title = "Needs a pollination partner",
+        message = "This plant is not self-fruitful; add a second plant.",
+    )
+
+    @Test
+    fun showsAcceptButtonForContainerSizeAndInvokesCallback() {
+        var acceptedKind: String? = null
+        composeRule.setContent {
+            PlantDetailScreen(
+                state = PlantDetailUiState.Content(plant = plant, task = task, advisories = listOf(advisory)),
+                onAccept = { acceptedKind = it },
+            )
+        }
+        composeRule
+            .onNodeWithTag(InventoryTestTags.ADVISORY_ACCEPT_BUTTON_PREFIX + "container-size")
+            .assertIsDisplayed()
+            .performClick()
+        assert(acceptedKind == "container-size") { "expected container-size, got $acceptedKind" }
+    }
+
+    @Test
+    fun noAcceptButtonForPollination() {
+        composeRule.setContent {
+            PlantDetailScreen(
+                state = PlantDetailUiState.Content(plant = plant, task = task, advisories = listOf(pollinationAdvisory)),
+            )
+        }
+        composeRule
+            .onNodeWithTag(InventoryTestTags.ADVISORY_ACCEPT_BUTTON_PREFIX + "pollination")
+            .assertDoesNotExist()
     }
 
     @Test

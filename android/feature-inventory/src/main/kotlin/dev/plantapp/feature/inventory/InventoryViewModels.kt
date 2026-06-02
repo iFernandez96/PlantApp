@@ -169,4 +169,17 @@ class PlantDetailViewModel @Inject constructor(
             }
         }
     }
+
+    /** Accept an advisory: the backend creates the deterministic CareTask (D-09), then reload so
+     *  the new task + refreshed advisories show. On failure, reload to keep state consistent. */
+    fun accept(plantId: String, kind: String) {
+        viewModelScope.launch {
+            try {
+                repository.acceptAdvisory(plantId, kind)
+                loadFor(plantId)
+            } catch (_: Exception) {
+                loadFor(plantId)
+            }
+        }
+    }
 }
