@@ -4,6 +4,8 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
+import dev.plantapp.data.reminder.ReminderScheduler
+import dev.plantapp.data.reminder.ReminderScheduling
 import dev.plantapp.data.repository.AuthRepositoryImpl
 import dev.plantapp.data.repository.InventoryRepositoryImpl
 import dev.plantapp.data.settings.SettingsStore
@@ -65,6 +67,10 @@ object DataModule {
     @Singleton
     fun provideSupabaseAuthApi(): SupabaseAuthApi =
         SupabaseAuthApiFactory.create(authBaseUrl = DEFAULT_AUTH_BASE_URL, anonKey = DEFAULT_ANON_KEY)
+
+    @Provides
+    @Singleton
+    fun provideClock(): java.time.Clock = java.time.Clock.systemUTC()
 }
 
 @Module
@@ -81,4 +87,8 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindTokenWriter(impl: SettingsStore): TokenWriter
+
+    @Binds
+    @Singleton
+    abstract fun bindReminderScheduling(impl: ReminderScheduler): ReminderScheduling
 }

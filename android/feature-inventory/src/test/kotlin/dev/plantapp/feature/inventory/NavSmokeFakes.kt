@@ -8,8 +8,13 @@ import dev.plantapp.domain.model.GardenSpace
 import dev.plantapp.domain.model.NewPlant
 import dev.plantapp.domain.model.Plant
 import dev.plantapp.domain.model.PlantProfile
+import dev.plantapp.data.reminder.ReminderScheduling
+import dev.plantapp.data.reminder.ReminderSync
+import dev.plantapp.domain.reminder.ReminderSpec
 import dev.plantapp.domain.repository.AuthRepository
 import dev.plantapp.domain.repository.InventoryRepository
+import java.time.Clock
+import java.time.Instant
 
 /** Test-only fakes for the NavHost smoke. Canned data + call-recording flags; no HTTP, no Hilt. */
 class FakeInventoryRepository : InventoryRepository {
@@ -80,6 +85,15 @@ class FakeInventoryRepository : InventoryRepository {
 
     override suspend fun deletePlant(plantId: String) {}
 }
+
+/** No-op scheduler so the list ViewModel's app-open reminder sync is inert in the nav smoke. */
+private class NoopReminderScheduling : ReminderScheduling {
+    override fun schedule(specs: List<ReminderSpec>, now: Instant) {}
+}
+
+/** A ReminderSync over the given repo that schedules nowhere — keeps the smoke focused on nav. */
+fun reminderSync(repo: InventoryRepository): ReminderSync =
+    ReminderSync(repo, NoopReminderScheduling(), Clock.systemUTC())
 
 /** Fake email-OTP auth: records the calls and succeeds (token persistence is out of scope here). */
 class FakeAuthRepository : AuthRepository {

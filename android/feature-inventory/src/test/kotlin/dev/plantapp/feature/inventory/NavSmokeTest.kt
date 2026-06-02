@@ -79,7 +79,7 @@ class NavSmokeTest {
                 )
             }
             composable("plants") {
-                val vm = remember { PlantListViewModel(repo) }
+                val vm = remember { PlantListViewModel(repo, reminderSync(repo)) }
                 val state by vm.state.collectAsState()
                 PlantListScreen(
                     state = state,

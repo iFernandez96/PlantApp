@@ -6,6 +6,7 @@ import dev.plantapp.domain.model.Container
 import dev.plantapp.domain.model.GardenSpace
 import dev.plantapp.domain.model.NewPlant
 import dev.plantapp.domain.model.PlantProfile
+import dev.plantapp.data.reminder.ReminderSync
 import dev.plantapp.domain.repository.AuthRepository
 import dev.plantapp.domain.repository.InventoryRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -16,10 +17,12 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-/** Loads the caller's plants for the list screen. */
+/** Loads the caller's plants for the list screen. On a successful load it also (re)schedules local
+ *  watering reminders on app open (fire-and-forget; a scheduling failure never affects the list). */
 @HiltViewModel
 class PlantListViewModel @Inject constructor(
     private val repository: InventoryRepository,
+    private val reminderSync: ReminderSync,
 ) : ViewModel() {
     private val _state = MutableStateFlow<PlantListUiState>(PlantListUiState.Loading)
     val state: StateFlow<PlantListUiState> = _state.asStateFlow()
@@ -33,6 +36,8 @@ class PlantListViewModel @Inject constructor(
         viewModelScope.launch {
             _state.value = try {
                 val plants = repository.getPlants()
+                // Successful load → (re)schedule local reminders; isolated so it can't break the UI.
+                viewModelScope.launch { runCatching { reminderSync.syncNow() } }
                 if (plants.isEmpty()) PlantListUiState.Empty else PlantListUiState.Content(plants)
             } catch (e: Exception) {
                 PlantListUiState.Error(e.message ?: "unknown error")

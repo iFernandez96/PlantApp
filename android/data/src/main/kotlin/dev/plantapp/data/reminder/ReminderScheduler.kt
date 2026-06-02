@@ -11,13 +11,18 @@ import java.time.Instant
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
+/** Narrow seam so reminder coordinators can be unit-tested without a real WorkManager. */
+interface ReminderScheduling {
+    fun schedule(specs: List<ReminderSpec>, now: Instant)
+}
+
 /** Enqueues one delayed WorkManager request per [ReminderSpec] to post a local notification at its
  *  trigger time. Local path only — no Firebase/FCM. Work is unique per task id, so re-scheduling
  *  replaces the prior request rather than duplicating it. */
 class ReminderScheduler @Inject constructor(
     @ApplicationContext private val context: Context,
-) {
-    fun schedule(specs: List<ReminderSpec>, now: Instant) {
+) : ReminderScheduling {
+    override fun schedule(specs: List<ReminderSpec>, now: Instant) {
         val workManager = WorkManager.getInstance(context)
         for (spec in specs) {
             val triggerMs = runCatching { Instant.parse(spec.triggerAtUtc).toEpochMilli() }.getOrNull()
