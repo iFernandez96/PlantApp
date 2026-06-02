@@ -95,3 +95,34 @@ export function toCareTask(row: Row): Row {
   put(out, 'createdAt', row.created_at);
   return out;
 }
+
+export function toPlantProfile(row: Row): Row {
+  const out: Row = {
+    id: row.id,
+    scientificName: row.scientific_name,
+    commonNames: row.common_names,
+    category: row.category,
+    growthHabit: row.growth_habit,
+    requiresSupport: row.requires_support,
+    pollinationPartnersRequired: row.pollination_partners_required,
+    wateringProfile: row.watering_profile,
+    feedingProfile: row.feeding_profile,
+    containerProfile: row.container_profile,
+    lightProfile: row.light_profile,
+    temperatureProfile: row.temperature_profile,
+    version: row.version,
+  };
+  put(out, 'selfFruitful', row.self_fruitful);
+  put(out, 'seasonality', row.seasonality);
+  put(out, 'commonIssues', row.common_issues);
+  put(
+    out,
+    'verticalSuitability',
+    row.vertical_suitability === null || row.vertical_suitability === undefined
+      ? row.vertical_suitability
+      : Number(row.vertical_suitability),
+  );
+  put(out, 'source', row.source);
+  put(out, 'lastReviewedAt', row.last_reviewed_at);
+  return out;
+}

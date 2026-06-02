@@ -9,12 +9,43 @@ import { computeInitialWaterTask } from '../care-engine/index.js';
 import { computeAdvisories } from '../care-engine/advisories.js';
 import { loadConfig } from './config.js';
 import { makeAuthHook } from './auth.js';
-import { toGardenSpace, toContainer, toPlantInstance, toCareTask } from './mappers.js';
+import { toGardenSpace, toContainer, toPlantInstance, toCareTask, toPlantProfile } from './mappers.js';
 
 export async function buildApp(): Promise<FastifyInstance> {
   const config = loadConfig();
   const app = Fastify({ logger: false });
   const requireAuth = makeAuthHook(config);
+
+  // GET /plant-profiles — read-only global species catalog (RLS allows all authenticated
+  // reads; not user-scoped). Source for the add-plant profile selector.
+  app.get('/plant-profiles', { onRequest: requireAuth }, async (request, reply) => {
+    const { data, error } = await request.supabase
+      .from('plant_profiles')
+      .select('*')
+      .order('id', { ascending: true });
+    if (error) return reply.code(400).send({ error: error.message });
+    return reply.code(200).send((data ?? []).map((r) => toPlantProfile(r as Record<string, unknown>)));
+  });
+
+  // GET /garden-spaces — the caller's garden spaces (RLS-scoped; mirrors GET /plants).
+  app.get('/garden-spaces', { onRequest: requireAuth }, async (request, reply) => {
+    const { data, error } = await request.supabase
+      .from('garden_spaces')
+      .select('*')
+      .order('created_at', { ascending: true });
+    if (error) return reply.code(400).send({ error: error.message });
+    return reply.code(200).send((data ?? []).map((r) => toGardenSpace(r as Record<string, unknown>)));
+  });
+
+  // GET /containers — the caller's containers (RLS-scoped).
+  app.get('/containers', { onRequest: requireAuth }, async (request, reply) => {
+    const { data, error } = await request.supabase
+      .from('containers')
+      .select('*')
+      .order('created_at', { ascending: true });
+    if (error) return reply.code(400).send({ error: error.message });
+    return reply.code(200).send((data ?? []).map((r) => toContainer(r as Record<string, unknown>)));
+  });
 
   // POST /garden-spaces
   app.post(
