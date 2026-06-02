@@ -7,6 +7,7 @@ import dev.plantapp.domain.model.Container
 import dev.plantapp.domain.model.GardenSpace
 import dev.plantapp.domain.model.NewPlant
 import dev.plantapp.domain.model.Plant
+import dev.plantapp.domain.model.PlantProfile
 import dev.plantapp.network.AddPlantRequest
 import dev.plantapp.network.AddPlantResponse
 import dev.plantapp.network.AdvisoryDto
@@ -14,10 +15,18 @@ import dev.plantapp.network.CareTaskDto
 import dev.plantapp.network.ContainerDto
 import dev.plantapp.network.GardenSpaceDto
 import dev.plantapp.network.PlantInstanceDto
+import dev.plantapp.network.PlantProfileDto
 
 // :network DTO ↔ :domain mapping for Slice 1.
 
 fun GardenSpaceDto.toDomain(): GardenSpace = GardenSpace(id = id, name = name, kind = kind)
+
+fun PlantProfileDto.toDomain(): PlantProfile = PlantProfile(
+    id = id,
+    scientificName = scientificName,
+    commonNames = commonNames,
+    category = category,
+)
 
 fun ContainerDto.toDomain(): Container = Container(
     id = id,

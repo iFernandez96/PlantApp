@@ -10,7 +10,10 @@ import dev.plantapp.network.CreateGardenSpaceRequest
 import dev.plantapp.network.GardenSpaceDto
 import dev.plantapp.network.PlantAppApi
 import dev.plantapp.network.PlantInstanceDto
+import dev.plantapp.network.PlantProfileDto
 import dev.plantapp.network.SourceInputsDto
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 import retrofit2.Response
 
 /** Hand-written fake of the :network PlantAppApi for repository mapping tests. Records
@@ -81,6 +84,26 @@ class FakePlantAppApi : PlantAppApi {
         message = "Passion fruit prefers at least 95 L (ideal 95-190 L); this container is 19 L.",
     )
 
+    val plantProfile = PlantProfileDto(
+        id = "solanum-lycopersicum",
+        scientificName = "Solanum lycopersicum",
+        commonNames = listOf("Tomato"),
+        category = "fruit",
+        growthHabit = "vine",
+        wateringProfile = buildJsonObject {
+            put("baseIntervalDays", 2)
+            put("dryingTolerance", "low")
+        },
+        feedingProfile = buildJsonObject { put("baseIntervalDays", 7) },
+        containerProfile = buildJsonObject { put("recommendedMinLiters", 19) },
+        lightProfile = buildJsonObject { put("targetSunHours", 8) },
+        temperatureProfile = buildJsonObject { put("frostSensitive", true) },
+        version = 1,
+    )
+
+    override suspend fun getPlantProfiles(): List<PlantProfileDto> = listOf(plantProfile)
+    override suspend fun getGardenSpaces(): List<GardenSpaceDto> = listOf(gardenSpace)
+    override suspend fun getContainers(): List<ContainerDto> = listOf(container)
     override suspend fun listPlants(): List<PlantInstanceDto> = listOf(plant)
     override suspend fun getPlant(id: String): PlantInstanceDto = plant
     override suspend fun getPlantTasks(id: String): List<CareTaskDto> = listOf(task)

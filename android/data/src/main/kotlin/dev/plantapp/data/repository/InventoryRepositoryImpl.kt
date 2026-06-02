@@ -9,6 +9,7 @@ import dev.plantapp.domain.model.Container
 import dev.plantapp.domain.model.GardenSpace
 import dev.plantapp.domain.model.NewPlant
 import dev.plantapp.domain.model.Plant
+import dev.plantapp.domain.model.PlantProfile
 import dev.plantapp.domain.repository.InventoryRepository
 import dev.plantapp.network.CreateContainerRequest
 import dev.plantapp.network.CreateGardenSpaceRequest
@@ -41,6 +42,15 @@ class InventoryRepositoryImpl @Inject constructor(
 
     override suspend fun addPlant(newPlant: NewPlant): AddPlantResult =
         api.addPlant(newPlant.toRequest()).toDomain()
+
+    override suspend fun getPlantProfiles(): List<PlantProfile> =
+        api.getPlantProfiles().map { it.toDomain() }
+
+    override suspend fun getGardenSpaces(): List<GardenSpace> =
+        api.getGardenSpaces().map { it.toDomain() }
+
+    override suspend fun getContainers(): List<Container> =
+        api.getContainers().map { it.toDomain() }
 
     override suspend fun getPlants(): List<Plant> =
         api.listPlants().map { it.toDomain() }

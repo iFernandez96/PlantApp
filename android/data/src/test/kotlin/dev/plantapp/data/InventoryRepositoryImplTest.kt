@@ -81,4 +81,29 @@ class InventoryRepositoryImplTest {
         repo(api).deletePlant(api.plant.id)
         assertEquals(listOf(api.plant.id), api.deleted)
     }
+
+    @Test
+    fun getPlantProfilesMapsToDomain() = runTest {
+        val api = FakePlantAppApi()
+        val profiles = repo(api).getPlantProfiles()
+        assertEquals(1, profiles.size)
+        assertEquals("solanum-lycopersicum", profiles[0].id)
+        assertEquals("Solanum lycopersicum", profiles[0].scientificName)
+        assertEquals(listOf("Tomato"), profiles[0].commonNames)
+        assertEquals("fruit", profiles[0].category)
+    }
+
+    @Test
+    fun getGardenSpacesAndContainersMapToDomain() = runTest {
+        val api = FakePlantAppApi()
+        val spaces = repo(api).getGardenSpaces()
+        assertEquals(1, spaces.size)
+        assertEquals(api.gardenSpace.id, spaces[0].id)
+        assertEquals("balcony", spaces[0].kind)
+
+        val containers = repo(api).getContainers()
+        assertEquals(1, containers.size)
+        assertEquals(api.container.id, containers[0].id)
+        assertEquals(19.0, containers[0].volumeLiters)
+    }
 }

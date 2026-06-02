@@ -10,6 +10,15 @@ data class GardenSpace(
     val kind: String,
 )
 
+/** Catalog entry for the add-plant profile selector. Subset of plant-profile.schema.json;
+ *  the deterministic care fields stay backend-side (D-09). */
+data class PlantProfile(
+    val id: String,
+    val scientificName: String,
+    val commonNames: List<String>,
+    val category: String,
+)
+
 data class Container(
     val id: String,
     val name: String?,
