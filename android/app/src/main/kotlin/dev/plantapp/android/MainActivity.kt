@@ -52,7 +52,9 @@ fun PlantAppNavHost() {
         }
         composable(Routes.ADD) {
             val vm: AddPlantViewModel = hiltViewModel()
+            val profiles by vm.profiles.collectAsState()
             AddPlantScreen(
+                profiles = profiles,
                 onSubmit = { form ->
                     vm.submit(form) { newId ->
                         nav.navigate(Routes.detail(newId)) {

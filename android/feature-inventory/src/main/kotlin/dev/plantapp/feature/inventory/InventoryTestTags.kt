@@ -6,7 +6,7 @@ object InventoryTestTags {
     const val ADD_PLANT_BUTTON = "inventory_add_plant_button"
     const val PLANT_LIST = "inventory_plant_list"
 
-    const val FIELD_PROFILE_ID = "field_profile_id"
+    const val FIELD_PROFILE_SELECTOR = "field_profile_selector"
     const val FIELD_CONTAINER_ID = "field_container_id"
     const val FIELD_GARDEN_SPACE_ID = "field_garden_space_id"
     const val FIELD_GROWTH_STAGE = "field_growth_stage"

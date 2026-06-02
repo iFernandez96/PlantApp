@@ -3,6 +3,7 @@ package dev.plantapp.feature.inventory
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.plantapp.domain.model.NewPlant
+import dev.plantapp.domain.model.PlantProfile
 import dev.plantapp.domain.repository.InventoryRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -43,6 +44,19 @@ class AddPlantViewModel @Inject constructor(
 ) : ViewModel() {
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
+
+    private val _profiles = MutableStateFlow<List<PlantProfile>>(emptyList())
+    val profiles: StateFlow<List<PlantProfile>> = _profiles.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            try {
+                _profiles.value = repository.getPlantProfiles()
+            } catch (e: Exception) {
+                _error.value = e.message ?: "Could not load profiles"
+            }
+        }
+    }
 
     fun submit(form: AddPlantForm, onSaved: (String) -> Unit) {
         viewModelScope.launch {

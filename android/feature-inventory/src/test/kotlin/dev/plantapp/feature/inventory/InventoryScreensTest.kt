@@ -9,6 +9,7 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import dev.plantapp.domain.model.CareTask
 import dev.plantapp.domain.model.Plant
+import dev.plantapp.domain.model.PlantProfile
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Rule
@@ -44,6 +45,10 @@ class InventoryScreensTest {
         inputsHash = "a".repeat(64),
         status = "pending",
     )
+    private val profiles = listOf(
+        PlantProfile("solanum-lycopersicum", "Solanum lycopersicum", listOf("Tomato"), "fruit"),
+        PlantProfile("ocimum-basilicum", "Ocimum basilicum", listOf("Basil"), "herb"),
+    )
 
     @Test
     fun `#21 list shows empty state when there are no plants`() {
@@ -54,9 +59,12 @@ class InventoryScreensTest {
     @Test
     fun `#22 add-plant submits the form when required fields are filled`() {
         var submitted: AddPlantForm? = null
-        composeRule.setContent { AddPlantScreen(onSubmit = { submitted = it }) }
+        composeRule.setContent { AddPlantScreen(profiles = profiles, onSubmit = { submitted = it }) }
 
-        composeRule.onNodeWithTag(InventoryTestTags.FIELD_PROFILE_ID).performTextInput("solanum-lycopersicum")
+        // pick the profile from the dropdown
+        composeRule.onNodeWithTag(InventoryTestTags.FIELD_PROFILE_SELECTOR).performClick()
+        composeRule.onNodeWithText("Tomato").performClick()
+
         composeRule.onNodeWithTag(InventoryTestTags.FIELD_CONTAINER_ID).performTextInput(plant.containerId)
         composeRule.onNodeWithTag(InventoryTestTags.FIELD_GARDEN_SPACE_ID).performTextInput(plant.gardenSpaceId)
         composeRule.onNodeWithTag(InventoryTestTags.FIELD_GROWTH_STAGE).performTextInput("vegetative")
@@ -65,6 +73,14 @@ class InventoryScreensTest {
         assertEquals("solanum-lycopersicum", submitted?.profileId)
         assertEquals(plant.containerId, submitted?.containerId)
         assertEquals(plant.gardenSpaceId, submitted?.gardenSpaceId)
+    }
+
+    @Test
+    fun `add-plant profile dropdown lists catalog profiles`() {
+        composeRule.setContent { AddPlantScreen(profiles = profiles, onSubmit = {}) }
+        composeRule.onNodeWithTag(InventoryTestTags.FIELD_PROFILE_SELECTOR).performClick()
+        composeRule.onNodeWithText("Tomato").assertIsDisplayed()
+        composeRule.onNodeWithText("Basil").assertIsDisplayed()
     }
 
     @Test
@@ -83,9 +99,10 @@ class InventoryScreensTest {
     @Test
     fun `#24 add-plant without a container shows error and does not submit`() {
         var submitted: AddPlantForm? = null
-        composeRule.setContent { AddPlantScreen(onSubmit = { submitted = it }) }
+        composeRule.setContent { AddPlantScreen(profiles = profiles, onSubmit = { submitted = it }) }
 
-        composeRule.onNodeWithTag(InventoryTestTags.FIELD_PROFILE_ID).performTextInput("solanum-lycopersicum")
+        composeRule.onNodeWithTag(InventoryTestTags.FIELD_PROFILE_SELECTOR).performClick()
+        composeRule.onNodeWithText("Tomato").performClick()
         composeRule.onNodeWithTag(InventoryTestTags.FIELD_GARDEN_SPACE_ID).performTextInput(plant.gardenSpaceId)
         composeRule.onNodeWithTag(InventoryTestTags.FIELD_GROWTH_STAGE).performTextInput("vegetative")
         // containerId intentionally left blank
