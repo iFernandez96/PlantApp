@@ -62,6 +62,7 @@ dependencies {
     testImplementation(libs.robolectric)
     testImplementation(libs.androidx.test.ext.junit)
     testImplementation(libs.compose.ui.test.junit4)
+    testImplementation(libs.compose.navigation) // NavHost smoke test drives a real NavController
     testImplementation(libs.kotlinx.coroutines.test)
     debugImplementation(libs.compose.ui.test.manifest)
 }
