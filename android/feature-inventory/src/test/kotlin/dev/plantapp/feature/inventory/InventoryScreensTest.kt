@@ -1,0 +1,96 @@
+package dev.plantapp.feature.inventory
+
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextInput
+import dev.plantapp.domain.model.CareTask
+import dev.plantapp.domain.model.Plant
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
+
+/** Slice 1 Compose UI tests #21–#24, run on the JVM via Robolectric (no emulator). The
+ *  stateless screens are driven directly with fixture state + callback spies. */
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [34])
+class InventoryScreensTest {
+    @get:Rule
+    val composeRule = createComposeRule()
+
+    private val plant = Plant(
+        id = "00000000-0000-4000-8000-000000000001",
+        profileId = "solanum-lycopersicum",
+        containerId = "00000000-0000-4000-8000-000000000002",
+        gardenSpaceId = "00000000-0000-4000-8000-000000000003",
+        growthStage = "vegetative",
+        nickname = "Pasi",
+        lastWateredAt = "2026-05-26T07:00:00.000Z",
+    )
+    private val task = CareTask(
+        id = "00000000-0000-4000-8000-0000000000aa",
+        kind = "water",
+        dueAt = "2026-05-28T07:00:00.000Z",
+        priority = "normal",
+        rationale = "Tomato: base interval 2d adjusted by container factor 1; baseline ...",
+        engineVersion = "0.1.0",
+        inputsHash = "a".repeat(64),
+        status = "pending",
+    )
+
+    @Test
+    fun `#21 list shows empty state when there are no plants`() {
+        composeRule.setContent { PlantListScreen(state = PlantListUiState.Empty) }
+        composeRule.onNodeWithTag(InventoryTestTags.EMPTY_STATE).assertIsDisplayed()
+    }
+
+    @Test
+    fun `#22 add-plant submits the form when required fields are filled`() {
+        var submitted: AddPlantForm? = null
+        composeRule.setContent { AddPlantScreen(onSubmit = { submitted = it }) }
+
+        composeRule.onNodeWithTag(InventoryTestTags.FIELD_PROFILE_ID).performTextInput("solanum-lycopersicum")
+        composeRule.onNodeWithTag(InventoryTestTags.FIELD_CONTAINER_ID).performTextInput(plant.containerId)
+        composeRule.onNodeWithTag(InventoryTestTags.FIELD_GARDEN_SPACE_ID).performTextInput(plant.gardenSpaceId)
+        composeRule.onNodeWithTag(InventoryTestTags.FIELD_GROWTH_STAGE).performTextInput("vegetative")
+        composeRule.onNodeWithTag(InventoryTestTags.SUBMIT_BUTTON).performClick()
+
+        assertEquals("solanum-lycopersicum", submitted?.profileId)
+        assertEquals(plant.containerId, submitted?.containerId)
+        assertEquals(plant.gardenSpaceId, submitted?.gardenSpaceId)
+    }
+
+    @Test
+    fun `#23 detail shows the water task with rationale, engineVersion badge, and dueAt`() {
+        composeRule.setContent {
+            PlantDetailScreen(state = PlantDetailUiState.Content(plant = plant, task = task))
+        }
+        composeRule.onNodeWithTag(InventoryTestTags.TASK_KIND).assertIsDisplayed()
+        composeRule.onNodeWithText("water", substring = true, ignoreCase = true).assertIsDisplayed()
+        composeRule.onNodeWithTag(InventoryTestTags.TASK_RATIONALE).assertIsDisplayed()
+        composeRule.onNodeWithTag(InventoryTestTags.ENGINE_VERSION_BADGE).assertIsDisplayed()
+        composeRule.onNodeWithText("0.1.0", substring = true).assertIsDisplayed()
+        composeRule.onNodeWithTag(InventoryTestTags.TASK_DUE_AT).assertIsDisplayed()
+    }
+
+    @Test
+    fun `#24 add-plant without a container shows error and does not submit`() {
+        var submitted: AddPlantForm? = null
+        composeRule.setContent { AddPlantScreen(onSubmit = { submitted = it }) }
+
+        composeRule.onNodeWithTag(InventoryTestTags.FIELD_PROFILE_ID).performTextInput("solanum-lycopersicum")
+        composeRule.onNodeWithTag(InventoryTestTags.FIELD_GARDEN_SPACE_ID).performTextInput(plant.gardenSpaceId)
+        composeRule.onNodeWithTag(InventoryTestTags.FIELD_GROWTH_STAGE).performTextInput("vegetative")
+        // containerId intentionally left blank
+        composeRule.onNodeWithTag(InventoryTestTags.SUBMIT_BUTTON).performClick()
+
+        composeRule.onNodeWithTag(InventoryTestTags.CONTAINER_ERROR).assertIsDisplayed()
+        assertNull(submitted)
+    }
+}
