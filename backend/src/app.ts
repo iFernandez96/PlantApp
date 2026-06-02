@@ -255,6 +255,29 @@ export async function buildApp(): Promise<FastifyInstance> {
     },
   );
 
+  // GET /plants — list the caller's plants (RLS-scoped to own rows).
+  app.get('/plants', { onRequest: requireAuth }, async (request, reply) => {
+    const { data, error } = await request.supabase
+      .from('plant_instances')
+      .select('*')
+      .order('created_at', { ascending: true });
+    if (error) return reply.code(400).send({ error: error.message });
+    return reply.code(200).send(data ?? []);
+  });
+
+  // GET /plants/:id — the caller's single plant; 404 if not visible/owned.
+  app.get('/plants/:id', { onRequest: requireAuth }, async (request, reply) => {
+    const { id } = request.params as { id: string };
+    const { data, error } = await request.supabase
+      .from('plant_instances')
+      .select('*')
+      .eq('id', id)
+      .maybeSingle();
+    if (error) return reply.code(400).send({ error: error.message });
+    if (!data) return reply.code(404).send({ error: 'not_found' });
+    return reply.code(200).send(data);
+  });
+
   // GET /plants/:id/tasks
   app.get(
     '/plants/:id/tasks',
@@ -270,6 +293,20 @@ export async function buildApp(): Promise<FastifyInstance> {
       return reply.code(200).send(data ?? []);
     },
   );
+
+  // DELETE /plants/:id — delete the caller's plant; 204 on success, 404 if not owned.
+  // care_tasks rows cascade via the plant_instances → care_tasks ON DELETE CASCADE FK.
+  app.delete('/plants/:id', { onRequest: requireAuth }, async (request, reply) => {
+    const { id } = request.params as { id: string };
+    const { data, error } = await request.supabase
+      .from('plant_instances')
+      .delete()
+      .eq('id', id)
+      .select('id');
+    if (error) return reply.code(400).send({ error: error.message });
+    if (!data || data.length === 0) return reply.code(404).send({ error: 'not_found' });
+    return reply.code(204).send();
+  });
 
   return app;
 }
