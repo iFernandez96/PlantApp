@@ -39,7 +39,16 @@ class PlantListViewModel @Inject constructor(
                 val plants = repository.getPlants()
                 // Successful load → (re)schedule local reminders; isolated so it can't break the UI.
                 viewModelScope.launch { runCatching { reminderSync.syncNow() } }
-                if (plants.isEmpty()) PlantListUiState.Empty else PlantListUiState.Content(plants)
+                // Friendly names only; a profile failure must never break the list.
+                val speciesNames = runCatching { repository.getPlantProfiles() }
+                    .getOrDefault(emptyList())
+                    .mapNotNull { profile -> profile.commonNames.firstOrNull()?.let { profile.id to it } }
+                    .toMap()
+                if (plants.isEmpty()) {
+                    PlantListUiState.Empty
+                } else {
+                    PlantListUiState.Content(plants, speciesNames = speciesNames)
+                }
             } catch (e: Exception) {
                 PlantListUiState.Error(e.message ?: "unknown error")
             }

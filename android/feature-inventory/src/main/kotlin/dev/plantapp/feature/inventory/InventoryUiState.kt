@@ -8,7 +8,11 @@ import dev.plantapp.domain.model.Plant
 sealed interface PlantListUiState {
     data object Loading : PlantListUiState
     data object Empty : PlantListUiState
-    data class Content(val plants: List<Plant>) : PlantListUiState
+    data class Content(
+        val plants: List<Plant>,
+        /** profileId → first common name; missing entries fall back to a de-slugged id. */
+        val speciesNames: Map<String, String> = emptyMap(),
+    ) : PlantListUiState
     data class Error(val message: String) : PlantListUiState
 }
 

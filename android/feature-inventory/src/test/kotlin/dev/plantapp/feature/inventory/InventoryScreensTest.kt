@@ -48,6 +48,20 @@ class InventoryScreensTest {
     }
 
     @Test
+    fun `list rows show the friendly species name, never the profile slug`() {
+        composeRule.setContent {
+            PlantListScreen(
+                state = PlantListUiState.Content(
+                    plants = listOf(plant.copy(nickname = null)),
+                    speciesNames = mapOf("solanum-lycopersicum" to "Tomato"),
+                ),
+            )
+        }
+        composeRule.onNodeWithText("Tomato").assertIsDisplayed()
+        composeRule.onNodeWithText("solanum-lycopersicum").assertDoesNotExist()
+    }
+
+    @Test
     fun `#23 detail shows the water task with rationale and dueAt, in plain language`() {
         composeRule.setContent {
             PlantDetailScreen(state = PlantDetailUiState.Content(plant = plant, task = task))

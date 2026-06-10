@@ -17,6 +17,11 @@ object DisplayText {
         else -> kind.replace('-', ' ').replaceFirstChar { it.uppercase() }
     }
 
+    /** Last-resort species name when nickname and profile name are both missing: de-slug the
+     *  profile id ("solanum-lycopersicum" -> "Solanum lycopersicum"). */
+    fun speciesFallbackName(profileId: String): String =
+        profileId.replace('-', ' ').replaceFirstChar { it.uppercase() }
+
     /** "vegetative" -> "Growing well", etc. */
     fun growthStageLabel(stage: String): String = when (stage) {
         "seedling" -> "Just starting out"

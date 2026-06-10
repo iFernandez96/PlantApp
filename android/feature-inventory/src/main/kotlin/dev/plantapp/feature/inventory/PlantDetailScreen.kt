@@ -63,7 +63,7 @@ fun PlantDetailScreen(
                 ) {
                     Text(
                         text = state.plant.nickname ?: state.speciesName
-                            ?: prettify(state.plant.profileId),
+                            ?: DisplayText.speciesFallbackName(state.plant.profileId),
                         style = MaterialTheme.typography.headlineSmall,
                     )
                     Text(DisplayText.growthStageLabel(state.plant.growthStage))
@@ -140,10 +140,6 @@ private fun AdvisoryRow(advisory: Advisory, onAccept: (kind: String) -> Unit) {
         }
     }
 }
-
-/** Last-resort title when nickname and profile name are both missing: de-slug the profile id. */
-private fun prettify(slug: String): String =
-    slug.replace('-', ' ').replaceFirstChar { it.uppercase() }
 
 private val dueAtFormatter: DateTimeFormatter =
     DateTimeFormatter.ofPattern("MMM d, yyyy", Locale.US).withZone(ZoneId.systemDefault())

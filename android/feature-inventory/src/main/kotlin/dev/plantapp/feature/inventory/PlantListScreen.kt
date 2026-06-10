@@ -1,11 +1,15 @@
 package dev.plantapp.feature.inventory
 
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
@@ -21,9 +25,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import dev.plantapp.designsystem.GlassCard
 import dev.plantapp.domain.model.Plant
+import dev.plantapp.feature.inventory.addplant.WizardIcons
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -65,7 +71,9 @@ fun PlantListScreen(
                         modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp).testTag(InventoryTestTags.PLANT_LIST),
                         verticalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
-                        items(state.plants, key = { it.id }) { plant -> PlantRow(plant, onPlantClick) }
+                        items(state.plants, key = { it.id }) { plant ->
+                            PlantRow(plant, state.speciesNames, onPlantClick)
+                        }
                     }
             }
         }
@@ -73,15 +81,40 @@ fun PlantListScreen(
 }
 
 @Composable
-private fun PlantRow(plant: Plant, onPlantClick: (String) -> Unit) {
-    GlassCard(modifier = Modifier.fillMaxWidth()) {
-        Text(
-            text = plant.nickname ?: plant.profileId,
-            style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { onPlantClick(plant.id) }
-                .padding(16.dp),
-        )
+private fun PlantRow(
+    plant: Plant,
+    speciesNames: Map<String, String>,
+    onPlantClick: (String) -> Unit,
+) {
+    val speciesName = speciesNames[plant.profileId]
+    val primary = plant.nickname ?: speciesName
+        ?: DisplayText.speciesFallbackName(plant.profileId)
+    GlassCard(
+        onClick = { onPlantClick(plant.id) },
+        modifier = Modifier
+            .fillMaxWidth()
+            .testTag(InventoryTestTags.PLANT_ROW_PREFIX + plant.id),
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth().heightIn(min = 104.dp).padding(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Image(
+                painter = painterResource(WizardIcons.speciesIconRes(plant.profileId)),
+                contentDescription = null,
+                modifier = Modifier.size(64.dp),
+            )
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(text = primary, style = MaterialTheme.typography.titleMedium)
+                if (speciesName != null && speciesName != primary) {
+                    Text(
+                        text = speciesName,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+        }
     }
 }

@@ -5,6 +5,7 @@ object InventoryTestTags {
     const val EMPTY_STATE = "inventory_empty_state"
     const val ADD_PLANT_BUTTON = "inventory_add_plant_button"
     const val PLANT_LIST = "inventory_plant_list"
+    const val PLANT_ROW_PREFIX = "plant_row_"
 
     const val FIELD_PROFILE_SELECTOR = "field_profile_selector"
     const val FIELD_CONTAINER_SELECTOR = "field_container_selector"
