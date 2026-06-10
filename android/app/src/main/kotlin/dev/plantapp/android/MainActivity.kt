@@ -8,15 +8,31 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Balcony
+import androidx.compose.material.icons.filled.LocalFlorist
+import androidx.compose.material.icons.filled.WbSunny
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import dagger.hilt.android.AndroidEntryPoint
@@ -51,13 +67,70 @@ private object Routes {
     const val LIST = "plants"
     const val ADD = "plants/add"
     const val DETAIL = "plants/{plantId}"
+    const val TODAY = "today"
+    const val SPACES = "spaces"
     fun detail(plantId: String) = "plants/$plantId"
 }
+
+private data class BottomTab(
+    val route: String,
+    val label: String,
+    val icon: ImageVector,
+    val testTag: String,
+)
+
+private val BOTTOM_TABS = listOf(
+    BottomTab(Routes.TODAY, "Today", Icons.Filled.WbSunny, "tab_today"),
+    BottomTab(Routes.LIST, "My Garden", Icons.Filled.LocalFlorist, "tab_garden"),
+    BottomTab(Routes.SPACES, "Spaces", Icons.Filled.Balcony, "tab_spaces"),
+)
 
 @Composable
 fun PlantAppNavHost(startDestination: String = Routes.LIST) {
     val nav = rememberNavController()
-    NavHost(navController = nav, startDestination = startDestination) {
+    val backStackEntry by nav.currentBackStackEntryAsState()
+    val currentRoute = backStackEntry?.destination?.route
+    Scaffold(
+        containerColor = Color.Transparent,
+        contentColor = MaterialTheme.colorScheme.onBackground,
+        bottomBar = {
+            // Hearth shell: the bar shows only on the three top-level tabs, never on sign-in,
+            // the add-plant wizard, or plant detail.
+            if (currentRoute != null && BOTTOM_TABS.any { it.route == currentRoute }) {
+                NavigationBar(containerColor = MaterialTheme.colorScheme.surface) {
+                    for (tab in BOTTOM_TABS) {
+                        NavigationBarItem(
+                            selected = currentRoute == tab.route,
+                            onClick = {
+                                nav.navigate(tab.route) {
+                                    launchSingleTop = true
+                                    restoreState = true
+                                    popUpTo(Routes.LIST) { saveState = true }
+                                }
+                            },
+                            icon = { Icon(tab.icon, contentDescription = tab.label) },
+                            label = { Text(tab.label) },
+                            alwaysShowLabel = true,
+                            modifier = Modifier.testTag(tab.testTag),
+                        )
+                    }
+                }
+            }
+        },
+    ) { padding ->
+        PlantAppNavGraph(nav, startDestination, Modifier.padding(padding))
+    }
+}
+
+@Composable
+private fun PlantAppNavGraph(
+    nav: androidx.navigation.NavHostController,
+    startDestination: String,
+    modifier: Modifier = Modifier,
+) {
+    NavHost(navController = nav, startDestination = startDestination, modifier = modifier) {
+        composable(Routes.TODAY) { TodayPlaceholderScreen() }
+        composable(Routes.SPACES) { SpacesPlaceholderScreen() }
         composable(Routes.SIGN_IN) {
             val vm: SignInViewModel = hiltViewModel()
             val state by vm.state.collectAsState()
