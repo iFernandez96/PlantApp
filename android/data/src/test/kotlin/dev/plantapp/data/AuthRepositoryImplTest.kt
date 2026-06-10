@@ -4,6 +4,7 @@ import dev.plantapp.data.repository.AuthRepositoryImpl
 import dev.plantapp.data.settings.TokenWriter
 import dev.plantapp.domain.repository.AuthRepository
 import dev.plantapp.network.OtpRequest
+import dev.plantapp.network.RefreshTokenRequest
 import dev.plantapp.network.SessionResponse
 import dev.plantapp.network.SupabaseAuthApi
 import dev.plantapp.network.VerifyOtpRequest
@@ -27,14 +28,23 @@ class AuthRepositoryImplTest {
 
         override suspend fun verifyOtp(body: VerifyOtpRequest): SessionResponse {
             lastVerify = body
-            return SessionResponse(accessToken = "token-123")
+            return SessionResponse(accessToken = "token-123", refreshToken = "refresh-456")
         }
+
+        override suspend fun refreshToken(body: RefreshTokenRequest): SessionResponse =
+            throw UnsupportedOperationException("not used by AuthRepositoryImpl")
     }
 
     private class FakeTokenWriter : TokenWriter {
         var last: String? = "<unset>"
+        var lastRefresh: String? = "<unset>"
         override suspend fun setToken(token: String?) {
             last = token
+        }
+
+        override suspend fun setSession(accessToken: String?, refreshToken: String?) {
+            last = accessToken
+            lastRefresh = refreshToken
         }
     }
 
@@ -49,7 +59,7 @@ class AuthRepositoryImplTest {
     }
 
     @Test
-    fun `verifyOtp persists the returned access token`() = runTest {
+    fun `verifyOtp persists the returned session pair`() = runTest {
         val api = FakeSupabaseAuthApi()
         val writer = FakeTokenWriter()
         repo(api, writer).verifyOtp("a@b.test", "123456")
@@ -57,5 +67,6 @@ class AuthRepositoryImplTest {
         assertEquals("123456", api.lastVerify?.token)
         assertEquals("email", api.lastVerify?.type)
         assertEquals("token-123", writer.last)
+        assertEquals("refresh-456", writer.lastRefresh)
     }
 }

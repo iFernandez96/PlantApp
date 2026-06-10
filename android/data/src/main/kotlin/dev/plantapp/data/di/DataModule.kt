@@ -8,6 +8,7 @@ import dev.plantapp.data.reminder.ReminderScheduler
 import dev.plantapp.data.reminder.ReminderScheduling
 import dev.plantapp.data.repository.AuthRepositoryImpl
 import dev.plantapp.data.repository.InventoryRepositoryImpl
+import dev.plantapp.data.repository.SessionRefreshManager
 import dev.plantapp.data.settings.SettingsStore
 import dev.plantapp.data.settings.TokenWriter
 import dev.plantapp.domain.repository.AuthRepository
@@ -15,6 +16,7 @@ import dev.plantapp.domain.repository.InventoryRepository
 import dev.plantapp.network.AuthTokenProvider
 import dev.plantapp.network.PlantAppApi
 import dev.plantapp.network.PlantAppApiFactory
+import dev.plantapp.network.SessionRefresher
 import dev.plantapp.network.SupabaseAuthApi
 import dev.plantapp.network.SupabaseAuthApiFactory
 import dagger.Binds
@@ -51,10 +53,12 @@ object DataModule {
     fun providePlantAppApi(
         settings: SettingsStore,
         tokenProvider: AuthTokenProvider,
+        refreshManager: SessionRefreshManager,
     ): PlantAppApi =
         PlantAppApiFactory.create(
             baseUrl = settings.baseUrlBlocking(BuildConfig.API_BASE_URL),
             tokenProvider = tokenProvider,
+            sessionRefresher = SessionRefresher { refreshManager.refreshSessionBlocking() },
         )
 
     @Provides

@@ -7,8 +7,9 @@ import dev.plantapp.network.SupabaseAuthApi
 import dev.plantapp.network.VerifyOtpRequest
 import javax.inject.Inject
 
-/** AuthRepository over the Supabase GoTrue [SupabaseAuthApi]. On a successful verify the access
- *  token is persisted via [TokenWriter] (the network auth interceptor reads it back). */
+/** AuthRepository over the Supabase GoTrue [SupabaseAuthApi]. On a successful verify the full
+ *  session pair is persisted via [TokenWriter] (the network auth interceptor reads the access
+ *  token back; the refresh token feeds the 401 auto-refresh). */
 class AuthRepositoryImpl @Inject constructor(
     private val api: SupabaseAuthApi,
     private val tokenWriter: TokenWriter,
@@ -21,6 +22,6 @@ class AuthRepositoryImpl @Inject constructor(
 
     override suspend fun verifyOtp(email: String, code: String) {
         val session = api.verifyOtp(VerifyOtpRequest(email = email, token = code))
-        tokenWriter.setToken(session.accessToken)
+        tokenWriter.setSession(session.accessToken, session.refreshToken)
     }
 }
