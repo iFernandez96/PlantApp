@@ -28,13 +28,24 @@ class AddPlantWizardModelTest {
         val byLabel = AddPlantWizardModel.LOCATION_PRESETS.associate { it.label to it.kind }
         assertEquals(
             mapOf(
-                "Windowsill" to "windowsill",
+                "Windowsill" to "window-ledge",
                 "Balcony" to "balcony",
-                "Backyard" to "yard",
-                "Indoors" to "indoor",
+                "Backyard" to "other",
+                "Indoors" to "indoor-room",
             ),
             byLabel,
         )
+    }
+
+    @Test
+    fun `location preset kinds are accepted by the garden_spaces DB constraint`() {
+        val allowed = setOf(
+            "balcony", "patio", "window-ledge", "indoor-room",
+            "vertical-rack-zone", "hanging-zone", "grow-light-shelf", "other",
+        ) // mirrors supabase/migrations/0002_slice1_garden_spaces.sql
+        AddPlantWizardModel.LOCATION_PRESETS.forEach { preset ->
+            check(preset.kind in allowed) { "preset '${preset.label}' sends invalid kind '${preset.kind}'" }
+        }
     }
 
     @Test

@@ -20,11 +20,13 @@ object AddPlantWizardModel {
         PotSizeOption("Raised bed / in-ground", 75.0),
     )
 
+    // Kinds MUST stay within the garden_spaces_kind_check constraint
+    // (supabase/migrations/0002): "Backyard" has no closer enum value than "other".
     val LOCATION_PRESETS: List<LocationPreset> = listOf(
-        LocationPreset("Windowsill", "windowsill"),
+        LocationPreset("Windowsill", "window-ledge"),
         LocationPreset("Balcony", "balcony"),
-        LocationPreset("Backyard", "yard"),
-        LocationPreset("Indoors", "indoor"),
+        LocationPreset("Backyard", "other"),
+        LocationPreset("Indoors", "indoor-room"),
     )
 
     // Icons are custom per-species vector drawables (see WizardIcons) — no emoji.

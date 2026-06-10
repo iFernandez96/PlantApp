@@ -40,10 +40,10 @@ object WizardIcons {
     }
 
     fun locationIcon(kind: String): ImageVector = when (kind) {
-        "windowsill" -> Icons.Filled.WbSunny
+        "window-ledge" -> Icons.Filled.WbSunny
         "balcony" -> Icons.Filled.Balcony
-        "yard" -> Icons.Filled.Cottage
-        "indoor" -> Icons.Filled.Home
+        "other" -> Icons.Filled.Cottage
+        "indoor-room" -> Icons.Filled.Home
         else -> Icons.Filled.Yard
     }
 }

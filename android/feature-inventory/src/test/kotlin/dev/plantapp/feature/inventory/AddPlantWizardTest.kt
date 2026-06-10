@@ -116,14 +116,14 @@ class AddPlantWizardTest {
 
         composeRule.onNodeWithTag(InventoryTestTags.WIZARD_SPECIES_TILE_PREFIX + "ocimum-basilicum").performClick()
         composeRule.waitForIdle()
-        composeRule.onNodeWithTag(InventoryTestTags.WIZARD_LOCATION_TILE_PREFIX + "windowsill").performClick()
+        composeRule.onNodeWithTag(InventoryTestTags.WIZARD_LOCATION_TILE_PREFIX + "window-ledge").performClick()
         composeRule.waitForIdle()
         assertEquals(1, spy.createSpaceCalls)
 
         // Back to step 2, reselect the same location → must reuse, not create again.
         composeRule.onNodeWithTag(InventoryTestTags.WIZARD_BACK_BUTTON).performClick()
         composeRule.waitForIdle()
-        composeRule.onNodeWithTag(InventoryTestTags.WIZARD_LOCATION_TILE_PREFIX + "windowsill").performClick()
+        composeRule.onNodeWithTag(InventoryTestTags.WIZARD_LOCATION_TILE_PREFIX + "window-ledge").performClick()
         composeRule.waitForIdle()
         assertEquals(1, spy.createSpaceCalls)
     }
