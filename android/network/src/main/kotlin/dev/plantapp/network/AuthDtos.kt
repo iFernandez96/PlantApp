@@ -20,6 +20,11 @@ data class VerifyOtpRequest(
 )
 
 @Serializable
+data class RefreshTokenRequest(
+    @SerialName("refresh_token") val refreshToken: String,
+)
+
+@Serializable
 data class SessionResponse(
     @SerialName("access_token") val accessToken: String,
     @SerialName("token_type") val tokenType: String? = null,

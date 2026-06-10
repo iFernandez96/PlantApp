@@ -29,6 +29,19 @@ class AuthDtoTest {
     }
 
     @Test
+    fun refreshTokenRequestEncodesSnakeCaseAndSessionWithBothTokensRoundTrips() {
+        val encoded = json.encodeToString(RefreshTokenRequest("r1"))
+        assertEquals("""{"refresh_token":"r1"}""", encoded)
+
+        val session = json.decodeFromString<SessionResponse>(
+            """{"access_token":"a1","refresh_token":"r2","token_type":"bearer","expires_in":3600}""",
+        )
+        assertEquals("a1", session.accessToken)
+        assertEquals("r2", session.refreshToken)
+        assertEquals(session, json.decodeFromString<SessionResponse>(json.encodeToString(session)))
+    }
+
+    @Test
     fun sessionResponseDecodesGoTrueJsonIgnoringUnknownKeys() {
         val body = """
             {"access_token":"abc.def.ghi","token_type":"bearer","expires_in":3600,
