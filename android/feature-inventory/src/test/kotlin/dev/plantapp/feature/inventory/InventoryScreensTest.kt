@@ -48,15 +48,14 @@ class InventoryScreensTest {
     }
 
     @Test
-    fun `#23 detail shows the water task with rationale, engineVersion badge, and dueAt`() {
+    fun `#23 detail shows the water task with rationale and dueAt, in plain language`() {
         composeRule.setContent {
             PlantDetailScreen(state = PlantDetailUiState.Content(plant = plant, task = task))
         }
         composeRule.onNodeWithTag(InventoryTestTags.TASK_KIND).assertIsDisplayed()
         composeRule.onNodeWithText("water", substring = true, ignoreCase = true).assertIsDisplayed()
         composeRule.onNodeWithTag(InventoryTestTags.TASK_RATIONALE).assertIsDisplayed()
-        composeRule.onNodeWithTag(InventoryTestTags.ENGINE_VERSION_BADGE).assertIsDisplayed()
-        composeRule.onNodeWithText("0.1.0", substring = true).assertIsDisplayed()
         composeRule.onNodeWithTag(InventoryTestTags.TASK_DUE_AT).assertIsDisplayed()
+        composeRule.onNodeWithText("Growing well").assertIsDisplayed()
     }
 }

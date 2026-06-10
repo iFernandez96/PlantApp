@@ -19,6 +19,8 @@ sealed interface PlantDetailUiState {
         val plant: Plant,
         val task: CareTask?,
         val advisories: List<Advisory> = emptyList(),
+        /** Friendly species name resolved from the plant's profile; null if lookup failed. */
+        val speciesName: String? = null,
     ) : PlantDetailUiState
     data class Error(val message: String) : PlantDetailUiState
 }

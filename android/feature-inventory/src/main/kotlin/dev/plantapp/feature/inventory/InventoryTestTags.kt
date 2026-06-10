@@ -26,7 +26,6 @@ object InventoryTestTags {
 
     const val TASK_KIND = "detail_task_kind"
     const val TASK_RATIONALE = "detail_task_rationale"
-    const val ENGINE_VERSION_BADGE = "detail_engine_version_badge"
     const val TASK_DUE_AT = "detail_task_due_at"
 
     const val ADVISORY_SECTION = "detail_advisories"

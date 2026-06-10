@@ -11,7 +11,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -63,10 +62,11 @@ fun PlantDetailScreen(
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     Text(
-                        text = state.plant.nickname ?: state.plant.profileId,
+                        text = state.plant.nickname ?: state.speciesName
+                            ?: prettify(state.plant.profileId),
                         style = MaterialTheme.typography.headlineSmall,
                     )
-                    Text("Growth stage: ${state.plant.growthStage}")
+                    Text(DisplayText.growthStageLabel(state.plant.growthStage))
                     if (state.task != null) CareTaskCard(state.task) else Text("No care task yet.")
                     if (state.advisories.isNotEmpty()) AdvisoriesSection(state.advisories, onAccept)
                 }
@@ -82,28 +82,20 @@ private fun CareTaskCard(task: CareTask) {
             verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
             Text(
-                text = "Next: ${task.kind}",
-            style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.testTag(InventoryTestTags.TASK_KIND),
-        )
-        Text(
-            text = "Due ${formatDueAt(task.dueAt)}",
-            modifier = Modifier.testTag(InventoryTestTags.TASK_DUE_AT),
-        )
-        Text(
-            text = task.rationale,
-            modifier = Modifier.testTag(InventoryTestTags.TASK_RATIONALE),
-        )
-        Surface(
-            color = MaterialTheme.colorScheme.secondaryContainer,
-            modifier = Modifier.testTag(InventoryTestTags.ENGINE_VERSION_BADGE),
-        ) {
-            Text(
-                text = "engine v${task.engineVersion}",
-                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                style = MaterialTheme.typography.labelSmall,
+                text = "Next: ${DisplayText.taskKindLabel(task.kind)}",
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.testTag(InventoryTestTags.TASK_KIND),
             )
-        }
+            Text(
+                text = "Due ${formatDueAt(task.dueAt)}",
+                modifier = Modifier.testTag(InventoryTestTags.TASK_DUE_AT),
+            )
+            Text(
+                text = task.rationale,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.testTag(InventoryTestTags.TASK_RATIONALE),
+            )
         }
     }
 }
@@ -131,7 +123,7 @@ private fun AdvisoryRow(advisory: Advisory, onAccept: (kind: String) -> Unit) {
             verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
             Text(
-                text = "${advisory.severity.uppercase(Locale.US)} · ${advisory.title}",
+                text = advisory.title,
                 style = MaterialTheme.typography.titleSmall,
             )
             Text(text = advisory.message, style = MaterialTheme.typography.bodyMedium)
@@ -142,12 +134,16 @@ private fun AdvisoryRow(advisory: Advisory, onAccept: (kind: String) -> Unit) {
                         InventoryTestTags.ADVISORY_ACCEPT_BUTTON_PREFIX + advisory.kind,
                     ),
                 ) {
-                    Text("Accept")
+                    Text("Yes, add this task")
                 }
             }
         }
     }
 }
+
+/** Last-resort title when nickname and profile name are both missing: de-slug the profile id. */
+private fun prettify(slug: String): String =
+    slug.replace('-', ' ').replaceFirstChar { it.uppercase() }
 
 private val dueAtFormatter: DateTimeFormatter =
     DateTimeFormatter.ofPattern("MMM d, yyyy", Locale.US).withZone(ZoneId.systemDefault())

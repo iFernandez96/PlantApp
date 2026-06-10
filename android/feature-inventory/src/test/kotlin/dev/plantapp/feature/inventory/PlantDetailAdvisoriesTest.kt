@@ -49,7 +49,7 @@ class PlantDetailAdvisoriesTest {
     )
 
     @Test
-    fun showsAdvisoryTitleMessageAndSeverity() {
+    fun showsAdvisoryTitleAndMessage() {
         composeRule.setContent {
             PlantDetailScreen(
                 state = PlantDetailUiState.Content(plant = plant, task = task, advisories = listOf(advisory)),
@@ -58,7 +58,6 @@ class PlantDetailAdvisoriesTest {
         composeRule.onNodeWithTag(InventoryTestTags.ADVISORY_SECTION).assertIsDisplayed()
         composeRule.onNodeWithText(advisory.title, substring = true).assertIsDisplayed()
         composeRule.onNodeWithText(advisory.message, substring = true).assertIsDisplayed()
-        composeRule.onNodeWithText("HIGH", substring = true, ignoreCase = true).assertIsDisplayed()
     }
 
     private val pollinationAdvisory = Advisory(

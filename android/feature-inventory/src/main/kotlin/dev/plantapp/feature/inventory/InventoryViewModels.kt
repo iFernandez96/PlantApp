@@ -167,7 +167,18 @@ class PlantDetailViewModel @Inject constructor(
                 } else {
                     val task = repository.getPlantTasks(plantId).firstOrNull()
                     val advisories = repository.getAdvisories(plantId)
-                    PlantDetailUiState.Content(plant = plant, task = task, advisories = advisories)
+                    // Friendly name only; a profile-lookup failure must never fail the screen.
+                    val speciesName = runCatching {
+                        repository.getPlantProfiles()
+                            .firstOrNull { it.id == plant.profileId }
+                            ?.commonNames?.firstOrNull()
+                    }.getOrNull()
+                    PlantDetailUiState.Content(
+                        plant = plant,
+                        task = task,
+                        advisories = advisories,
+                        speciesName = speciesName,
+                    )
                 }
             } catch (e: Exception) {
                 PlantDetailUiState.Error(e.message ?: "unknown error")
