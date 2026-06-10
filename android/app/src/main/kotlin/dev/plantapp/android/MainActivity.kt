@@ -157,6 +157,9 @@ private fun PlantAppNavGraph(
                 ActivityResultContracts.RequestPermission(),
             ) {}
             LaunchedEffect(Unit) {
+                // Re-runs on every visit (restoreState keeps the VM alive across tabs), so the
+                // list is fresh whenever the user looks at it; the VM refreshes quietly.
+                vm.refresh()
                 val granted = ContextCompat.checkSelfPermission(
                     context,
                     Manifest.permission.POST_NOTIFICATIONS,

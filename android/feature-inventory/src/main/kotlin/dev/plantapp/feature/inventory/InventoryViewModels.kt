@@ -32,7 +32,8 @@ class PlantListViewModel @Inject constructor(
     }
 
     fun refresh() {
-        _state.value = PlantListUiState.Loading
+        // Quiet refresh: only show the spinner when there is nothing useful on screen yet.
+        if (_state.value !is PlantListUiState.Content) _state.value = PlantListUiState.Loading
         viewModelScope.launch {
             _state.value = try {
                 val plants = repository.getPlants()
