@@ -34,7 +34,7 @@ fun PlantAppBackground(
     val topGlow = remember(colorScheme, isDark) {
         val glowColor = if (isDark) colorScheme.primary else colorScheme.tertiary
         Brush.radialGradient(
-            colors = listOf(glowColor.copy(alpha = if (isDark) 0.18f else 0.20f), glowColor.copy(alpha = if (isDark) 0.08f else 0.10f), Color.Transparent),
+            colors = listOf(glowColor.copy(alpha = if (isDark) 0.11f else 0.12f), glowColor.copy(alpha = if (isDark) 0.05f else 0.06f), Color.Transparent),
             center = Offset(280f, 90f), radius = 900f,
         )
     }
