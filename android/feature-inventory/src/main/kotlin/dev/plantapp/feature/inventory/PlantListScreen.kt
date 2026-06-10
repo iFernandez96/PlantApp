@@ -64,6 +64,11 @@ fun PlantListScreen(
                         text = "No plants yet. Tap + to add your first plant.",
                         modifier = Modifier.testTag(InventoryTestTags.EMPTY_STATE),
                     )
+                is PlantListUiState.SignedOut ->
+                    Text(
+                        text = "Signing you back in…",
+                        modifier = Modifier.testTag("list_signed_out"),
+                    )
                 is PlantListUiState.Error ->
                     Text(text = "Couldn't load plants: ${state.message}")
                 is PlantListUiState.Content ->

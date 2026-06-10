@@ -2,6 +2,7 @@ package dev.plantapp.data.repository
 
 import dev.plantapp.data.mapper.toDomain
 import dev.plantapp.data.mapper.toRequest
+import dev.plantapp.domain.SessionExpiredException
 import dev.plantapp.domain.model.AddPlantResult
 import dev.plantapp.domain.model.Advisory
 import dev.plantapp.domain.model.CareTask
@@ -23,15 +24,24 @@ class InventoryRepositoryImpl @Inject constructor(
     private val api: PlantAppApi,
 ) : InventoryRepository {
 
-    override suspend fun createGardenSpace(name: String, kind: String): GardenSpace =
+    /** A 401 here means the session is gone (the OkHttp authenticator already tried one
+     *  refresh) — surface it as the typed domain signal so the UI can route to sign-in. */
+    private suspend fun <T> authed(block: suspend () -> T): T = try {
+        block()
+    } catch (e: retrofit2.HttpException) {
+        if (e.code() == 401) throw SessionExpiredException() else throw e
+    }
+
+    override suspend fun createGardenSpace(name: String, kind: String): GardenSpace = authed {
         api.createGardenSpace(CreateGardenSpaceRequest(name = name, kind = kind)).toDomain()
+    }
 
     override suspend fun createContainer(
         name: String?,
         volumeLiters: Double,
         material: String,
         drainage: String,
-    ): Container =
+    ): Container = authed {
         api.createContainer(
             CreateContainerRequest(
                 name = name,
@@ -40,32 +50,41 @@ class InventoryRepositoryImpl @Inject constructor(
                 drainage = drainage,
             ),
         ).toDomain()
+    }
 
-    override suspend fun addPlant(newPlant: NewPlant): AddPlantResult =
+    override suspend fun addPlant(newPlant: NewPlant): AddPlantResult = authed {
         api.addPlant(newPlant.toRequest()).toDomain()
+    }
 
-    override suspend fun getPlantProfiles(): List<PlantProfile> =
+    override suspend fun getPlantProfiles(): List<PlantProfile> = authed {
         api.getPlantProfiles().map { it.toDomain() }
+    }
 
-    override suspend fun getGardenSpaces(): List<GardenSpace> =
+    override suspend fun getGardenSpaces(): List<GardenSpace> = authed {
         api.getGardenSpaces().map { it.toDomain() }
+    }
 
-    override suspend fun getContainers(): List<Container> =
+    override suspend fun getContainers(): List<Container> = authed {
         api.getContainers().map { it.toDomain() }
+    }
 
-    override suspend fun getPlants(): List<Plant> =
+    override suspend fun getPlants(): List<Plant> = authed {
         api.listPlants().map { it.toDomain() }
+    }
 
-    override suspend fun getPlantTasks(plantId: String): List<CareTask> =
+    override suspend fun getPlantTasks(plantId: String): List<CareTask> = authed {
         api.getPlantTasks(plantId).map { it.toDomain() }
+    }
 
-    override suspend fun getAdvisories(plantId: String): List<Advisory> =
+    override suspend fun getAdvisories(plantId: String): List<Advisory> = authed {
         api.getAdvisories(plantId).map { it.toDomain() }
+    }
 
-    override suspend fun acceptAdvisory(plantId: String, kind: String): CareTask =
+    override suspend fun acceptAdvisory(plantId: String, kind: String): CareTask = authed {
         api.acceptAdvisory(plantId, AcceptAdvisoryRequest(kind)).toDomain()
+    }
 
-    override suspend fun deletePlant(plantId: String) {
+    override suspend fun deletePlant(plantId: String) = authed {
         val response = api.deletePlant(plantId)
         check(response.isSuccessful) { "deletePlant failed: HTTP ${response.code()}" }
     }

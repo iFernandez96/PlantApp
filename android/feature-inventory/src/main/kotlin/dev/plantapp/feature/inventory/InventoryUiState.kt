@@ -8,6 +8,8 @@ import dev.plantapp.domain.model.Plant
 sealed interface PlantListUiState {
     data object Loading : PlantListUiState
     data object Empty : PlantListUiState
+    /** The session is gone (refresh failed) — the app should route back to sign-in. */
+    data object SignedOut : PlantListUiState
     data class Content(
         val plants: List<Plant>,
         /** profileId → first common name; missing entries fall back to a de-slugged id. */

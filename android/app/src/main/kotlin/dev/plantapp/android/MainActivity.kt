@@ -45,6 +45,7 @@ import dev.plantapp.feature.inventory.NotificationPermission
 import dev.plantapp.feature.inventory.PlantDetailScreen
 import dev.plantapp.feature.inventory.PlantDetailViewModel
 import dev.plantapp.feature.inventory.PlantListScreen
+import dev.plantapp.feature.inventory.PlantListUiState
 import dev.plantapp.feature.inventory.PlantListViewModel
 import dev.plantapp.feature.inventory.SignInScreen
 import dev.plantapp.feature.inventory.SignInViewModel
@@ -150,6 +151,12 @@ private fun PlantAppNavGraph(
         composable(Routes.LIST) {
             val vm: PlantListViewModel = hiltViewModel()
             val state by vm.state.collectAsState()
+            // Session gone (refresh failed) → back to sign-in with a cleared backstack.
+            LaunchedEffect(state) {
+                if (state is PlantListUiState.SignedOut) {
+                    nav.navigate(Routes.SIGN_IN) { popUpTo(0) { inclusive = true } }
+                }
+            }
             // Slice 3: ask for POST_NOTIFICATIONS once (Android 13+) so scheduled local reminders
             // can show. The Worker also guards on the live permission, so the result is a no-op here.
             val context = LocalContext.current

@@ -1,5 +1,6 @@
 package dev.plantapp.feature.inventory
 
+import dev.plantapp.domain.SessionExpiredException
 import dev.plantapp.domain.model.Plant
 import dev.plantapp.domain.repository.InventoryRepository
 import kotlinx.coroutines.Dispatchers
@@ -75,6 +76,17 @@ class PlantListViewModelTest {
         val state = vm.state.value
         assertTrue(state is PlantListUiState.Content)
         assertEquals(2, (state as PlantListUiState.Content).plants.size)
+    }
+
+    @Test
+    fun sessionExpiryMapsToSignedOutNotError() = runTest(dispatcher) {
+        val repo = MutablePlantsRepo().apply { failure = SessionExpiredException() }
+        val vm = PlantListViewModel(repo, reminderSync(repo))
+        advanceUntilIdle()
+        assertTrue(
+            "expired session must surface as SignedOut",
+            vm.state.value is PlantListUiState.SignedOut,
+        )
     }
 
     @Test

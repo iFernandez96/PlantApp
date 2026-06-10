@@ -2,6 +2,7 @@ package dev.plantapp.feature.inventory
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dev.plantapp.domain.SessionExpiredException
 import dev.plantapp.domain.model.Container
 import dev.plantapp.domain.model.GardenSpace
 import dev.plantapp.domain.model.NewPlant
@@ -50,7 +51,10 @@ class PlantListViewModel @Inject constructor(
                     PlantListUiState.Content(plants, speciesNames = speciesNames)
                 }
             } catch (e: Exception) {
-                PlantListUiState.Error(e.message ?: "unknown error")
+                when (e) {
+                    is SessionExpiredException -> PlantListUiState.SignedOut
+                    else -> PlantListUiState.Error(e.message ?: "unknown error")
+                }
             }
         }
     }
