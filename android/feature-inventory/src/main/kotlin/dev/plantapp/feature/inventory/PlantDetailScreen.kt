@@ -40,6 +40,7 @@ fun PlantDetailScreen(
     Scaffold(
         modifier = modifier,
         containerColor = Color.Transparent,
+        contentColor = MaterialTheme.colorScheme.onBackground,
         topBar = {
             TopAppBar(
                 title = { Text("Plant detail", style = MaterialTheme.typography.headlineSmall) },

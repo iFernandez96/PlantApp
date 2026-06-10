@@ -36,6 +36,7 @@ fun PlantListScreen(
     Scaffold(
         modifier = modifier,
         containerColor = Color.Transparent,
+        contentColor = MaterialTheme.colorScheme.onBackground,
         topBar = {
             TopAppBar(
                 title = { Text("My plants", style = MaterialTheme.typography.headlineSmall) },

@@ -93,6 +93,7 @@ fun AddPlantWizard(
     Scaffold(
         modifier = modifier,
         containerColor = Color.Transparent,
+        contentColor = MaterialTheme.colorScheme.onBackground,
         topBar = {
             TopAppBar(
                 title = { Text(title, style = MaterialTheme.typography.headlineSmall) },
