@@ -44,4 +44,5 @@ object InventoryTestTags {
     const val WIZARD_POT_TILE_PREFIX = "wizard_pot_"
     const val WIZARD_ADD_BUTTON = "wizard_add_button"
     const val WIZARD_BACK_BUTTON = "wizard_back_button"
+    const val WIZARD_ERROR = "wizard_error"
 }

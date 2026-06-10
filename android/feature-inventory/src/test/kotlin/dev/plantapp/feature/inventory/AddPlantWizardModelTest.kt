@@ -38,6 +38,20 @@ class AddPlantWizardModelTest {
     }
 
     @Test
+    fun locationPresetsHaveNaturalConfirmPhrases() {
+        val byLabel = AddPlantWizardModel.LOCATION_PRESETS.associate { it.label to it.phrase }
+        assertEquals(
+            mapOf(
+                "Windowsill" to "on the windowsill",
+                "Balcony" to "on the balcony",
+                "Backyard" to "in the backyard",
+                "Indoors" to "indoors",
+            ),
+            byLabel,
+        )
+    }
+
+    @Test
     fun `location preset kinds are accepted by the garden_spaces DB constraint`() {
         val allowed = setOf(
             "balcony", "patio", "window-ledge", "indoor-room",

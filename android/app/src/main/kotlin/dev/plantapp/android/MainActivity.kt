@@ -179,10 +179,12 @@ private fun PlantAppNavGraph(
             val profiles by vm.profiles.collectAsState()
             val gardenSpaces by vm.gardenSpaces.collectAsState()
             val containers by vm.containers.collectAsState()
+            val error by vm.error.collectAsState()
             AddPlantWizard(
                 profiles = profiles,
                 gardenSpaces = gardenSpaces,
                 containers = containers,
+                error = error,
                 onCreateGardenSpace = vm::createGardenSpace,
                 onCreateContainer = vm::createContainer,
                 onSubmit = { form ->

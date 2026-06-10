@@ -63,6 +63,7 @@ fun AddPlantWizard(
     onCreateContainer: (name: String?, volumeLiters: Double, material: String, drainage: String) -> Unit,
     onSubmit: (AddPlantForm) -> Unit,
     onCancel: () -> Unit = {},
+    error: String? = null,
     modifier: Modifier = Modifier,
 ) {
     var step by remember { mutableStateOf(1) }
@@ -71,6 +72,7 @@ fun AddPlantWizard(
     // Identity of the chosen location / pot (resolve ids from the lists, never assume "last").
     var targetSpaceName by remember { mutableStateOf<String?>(null) }
     var targetSpaceKind by remember { mutableStateOf<String?>(null) }
+    var targetSpacePhrase by remember { mutableStateOf<String?>(null) }
     var targetContainerName by remember { mutableStateOf<String?>(null) }
     var selectedGardenSpaceId by remember { mutableStateOf<String?>(null) }
     var selectedContainerId by remember { mutableStateOf<String?>(null) }
@@ -117,6 +119,26 @@ fun AddPlantWizard(
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
+            if (error != null) {
+                GlassCard(
+                    modifier = Modifier.fillMaxWidth().testTag(InventoryTestTags.WIZARD_ERROR),
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                    ) {
+                        Text(
+                            text = "Something didn't work. Please try again.",
+                            style = MaterialTheme.typography.titleSmall,
+                        )
+                        Text(
+                            text = error,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
+            }
             when (step) {
                 1 -> profiles.forEach { profile ->
                     Tile(
@@ -143,6 +165,7 @@ fun AddPlantWizard(
                     ) {
                         targetSpaceName = preset.label
                         targetSpaceKind = preset.kind
+                        targetSpacePhrase = preset.phrase
                         // Reuse an existing matching space; only create when none matches.
                         if (gardenSpaces.none { it.name == preset.label && it.kind == preset.kind }) {
                             onCreateGardenSpace(preset.label, preset.kind)
@@ -173,9 +196,9 @@ fun AddPlantWizard(
 
                 else -> {
                     val species = selectedProfile?.let(::speciesName) ?: "your plant"
-                    val place = targetSpaceName ?: "its spot"
+                    val phrase = targetSpacePhrase ?: "to its new spot"
                     Text(
-                        text = "Add your $species to the $place?",
+                        text = "Add your $species $phrase?",
                         style = MaterialTheme.typography.titleMedium,
                     )
                     val ready = selectedProfile != null &&

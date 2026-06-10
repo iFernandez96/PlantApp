@@ -8,6 +8,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import dev.plantapp.domain.model.Container
 import dev.plantapp.domain.model.GardenSpace
@@ -107,6 +108,39 @@ class AddPlantWizardTest {
         assertEquals(null, form.lastWateredAt)
         assertTrue("containerId resolved", form.containerId.isNotBlank())
         assertTrue("gardenSpaceId resolved", form.gardenSpaceId.isNotBlank())
+    }
+
+    @Test
+    fun confirmStepUsesTheNaturalLocationPhrase() {
+        val spy = Spy()
+        composeRule.setContent { Host(spy) }
+
+        composeRule.onNodeWithTag(InventoryTestTags.WIZARD_SPECIES_TILE_PREFIX + "ocimum-basilicum").performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag(InventoryTestTags.WIZARD_LOCATION_TILE_PREFIX + "window-ledge").performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag(InventoryTestTags.WIZARD_POT_TILE_PREFIX + potTileTagSuffix("6-inch pot")).performClick()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText("Add your Basil on the windowsill?").assertIsDisplayed()
+    }
+
+    @Test
+    fun errorCardShowsPlainCopyAndTheRawMessage() {
+        composeRule.setContent {
+            AddPlantWizard(
+                profiles = profiles,
+                gardenSpaces = emptyList(),
+                containers = emptyList(),
+                onCreateGardenSpace = { _, _ -> },
+                onCreateContainer = { _, _, _, _ -> },
+                onSubmit = {},
+                error = "boom",
+            )
+        }
+        composeRule.onNodeWithTag(InventoryTestTags.WIZARD_ERROR).assertIsDisplayed()
+        composeRule.onNodeWithText("Something didn't work. Please try again.").assertIsDisplayed()
+        composeRule.onNodeWithText("boom", substring = true).assertIsDisplayed()
     }
 
     @Test
