@@ -13,6 +13,16 @@ class InventoryRepositoryImplTest {
     private fun repo(api: FakePlantAppApi): InventoryRepository = InventoryRepositoryImpl(api)
 
     @Test
+    fun getPlantProfilesMapsTheCareBasicsFromTheCatalogDto() = runTest {
+        val profile = repo(FakePlantAppApi()).getPlantProfiles().first()
+        assertEquals(2.0, profile.wateringIntervalDays)
+        assertEquals(7.0, profile.feedingIntervalDays)
+        assertEquals(8.0, profile.sunHoursTarget)
+        assertEquals(true, profile.frostSensitive)
+        assertEquals(emptyList<String>(), profile.commonIssues)
+    }
+
+    @Test
     fun addPlantMapsResponseToDomain() = runTest {
         val api = FakePlantAppApi()
         val result = repo(api).addPlant(

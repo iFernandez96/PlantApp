@@ -16,6 +16,9 @@ import dev.plantapp.network.ContainerDto
 import dev.plantapp.network.GardenSpaceDto
 import dev.plantapp.network.PlantInstanceDto
 import dev.plantapp.network.PlantProfileDto
+import kotlinx.serialization.json.booleanOrNull
+import kotlinx.serialization.json.doubleOrNull
+import kotlinx.serialization.json.jsonPrimitive
 
 // :network DTO ↔ :domain mapping for Slice 1.
 
@@ -26,6 +29,16 @@ fun PlantProfileDto.toDomain(): PlantProfile = PlantProfile(
     scientificName = scientificName,
     commonNames = commonNames,
     category = category,
+    // runCatching keeps the mapper total: jsonPrimitive throws on nested objects/arrays.
+    wateringIntervalDays = wateringProfile["baseIntervalDays"]
+        ?.let { runCatching { it.jsonPrimitive.doubleOrNull }.getOrNull() },
+    feedingIntervalDays = feedingProfile["baseIntervalDays"]
+        ?.let { runCatching { it.jsonPrimitive.doubleOrNull }.getOrNull() },
+    sunHoursTarget = lightProfile["targetSunHours"]
+        ?.let { runCatching { it.jsonPrimitive.doubleOrNull }.getOrNull() },
+    frostSensitive = temperatureProfile["frostSensitive"]
+        ?.let { runCatching { it.jsonPrimitive.booleanOrNull }.getOrNull() },
+    commonIssues = commonIssues ?: emptyList(),
 )
 
 fun ContainerDto.toDomain(): Container = Container(

@@ -17,6 +17,15 @@ data class PlantProfile(
     val scientificName: String,
     val commonNames: List<String>,
     val category: String,
+    /** Beginner care basics extracted from the catalog profile; null/empty = not provided.
+     *  Intervals are Double — the catalog has non-integer cadences (e.g. basil 1.5 days).
+     *  DISPLAY-ONLY: never compute schedules from these client-side (D-09) — the backend
+     *  care engine is the sole scheduler. */
+    val wateringIntervalDays: Double? = null,
+    val feedingIntervalDays: Double? = null,
+    val sunHoursTarget: Double? = null,
+    val frostSensitive: Boolean? = null,
+    val commonIssues: List<String> = emptyList(),
 )
 
 data class Container(
