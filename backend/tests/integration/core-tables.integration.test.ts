@@ -38,8 +38,11 @@ describe('Slice 1 DB — core tables', () => {
     expect(rows[0]?.relrowsecurity).toBe(true);
   });
 
-  it('plant_profiles is seeded with the 5 Slice 1 profiles', async () => {
-    const { rows } = await client.query('select id from public.plant_profiles order by id');
+  it('plant_profiles still contains the 5 Slice 1 profiles (catalog has grown since)', async () => {
+    const { rows } = await client.query(
+      'select id from public.plant_profiles where id = any($1) order by id',
+      [SEED_PROFILE_IDS],
+    );
     expect(rows.map((r) => r.id)).toEqual(SEED_PROFILE_IDS);
   });
 });
