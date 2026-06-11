@@ -26,6 +26,21 @@ object DisplayText {
         else -> kind.replace('-', ' ').replaceFirstChar { it.uppercase() }
     }
 
+    /** Catalog category -> beginner browse label ("ornamental" -> "Flowers"). */
+    fun categoryLabel(category: String): String = when (category) {
+        "houseplant" -> "Houseplants"
+        "herb" -> "Herbs"
+        "vegetable" -> "Vegetables"
+        "fruit" -> "Fruit"
+        "berry" -> "Berries"
+        "ornamental" -> "Flowers"
+        "succulent" -> "Succulents"
+        "root" -> "Root vegetables"
+        "vine" -> "Vines & climbers"
+        "other" -> "More"
+        else -> category.replace('-', ' ').replaceFirstChar { it.uppercase() }
+    }
+
     /** Last-resort species name when nickname and profile name are both missing: de-slug the
      *  profile id ("solanum-lycopersicum" -> "Solanum lycopersicum"). */
     fun speciesFallbackName(profileId: String): String =

@@ -45,4 +45,6 @@ object InventoryTestTags {
     const val WIZARD_ADD_BUTTON = "wizard_add_button"
     const val WIZARD_BACK_BUTTON = "wizard_back_button"
     const val WIZARD_ERROR = "wizard_error"
+    const val WIZARD_SPECIES_SEARCH = "wizard_species_search"
+    const val WIZARD_CATEGORY_CHIP_PREFIX = "wizard_category_chip_"
 }

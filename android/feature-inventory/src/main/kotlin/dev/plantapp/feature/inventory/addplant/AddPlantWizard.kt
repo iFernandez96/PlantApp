@@ -1,18 +1,27 @@
 package dev.plantapp.feature.inventory.addplant
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -36,6 +45,7 @@ import dev.plantapp.domain.model.Container
 import dev.plantapp.domain.model.GardenSpace
 import dev.plantapp.domain.model.PlantProfile
 import dev.plantapp.feature.inventory.AddPlantForm
+import dev.plantapp.feature.inventory.DisplayText
 import dev.plantapp.feature.inventory.InventoryTestTags
 
 /** Stable test-tag suffix for a pot tile (label → slug). */
@@ -68,6 +78,10 @@ fun AddPlantWizard(
 ) {
     var step by remember { mutableStateOf(1) }
     var selectedProfile by remember { mutableStateOf<PlantProfile?>(null) }
+
+    // Species-picker state (search + category chips keep 75 catalog species browsable).
+    var speciesQuery by remember { mutableStateOf("") }
+    var speciesCategory by remember { mutableStateOf<String?>(null) }
 
     // Identity of the chosen location / pot (resolve ids from the lists, never assume "last").
     var targetSpaceName by remember { mutableStateOf<String?>(null) }
@@ -140,21 +154,62 @@ fun AddPlantWizard(
                 }
             }
             when (step) {
-                1 -> profiles.forEach { profile ->
-                    Tile(
-                        label = speciesName(profile),
-                        tag = InventoryTestTags.WIZARD_SPECIES_TILE_PREFIX + profile.id,
-                        leadingIcon = {
-                            Image(
-                                painter = painterResource(WizardIcons.speciesIconRes(profile.id)),
-                                contentDescription = null,
-                                modifier = Modifier.size(48.dp),
-                            )
-                        },
-                    ) {
-                        selectedProfile = profile
-                        step = 2
+                1 -> {
+                    OutlinedTextField(
+                        value = speciesQuery,
+                        onValueChange = { speciesQuery = it },
+                        singleLine = true,
+                        leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
+                        placeholder = { Text("Search tomato, basil, mint…") },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(min = 60.dp)
+                            .testTag(InventoryTestTags.WIZARD_SPECIES_SEARCH),
+                    )
+                    val presentCategories = AddPlantWizardModel.CATEGORY_ORDER
+                        .filter { c -> profiles.any { it.category == c } }
+                    if (presentCategories.size > 1) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .horizontalScroll(rememberScrollState()),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            presentCategories.forEach { c ->
+                                FilterChip(
+                                    selected = speciesCategory == c,
+                                    onClick = {
+                                        speciesCategory = if (speciesCategory == c) null else c
+                                    },
+                                    label = { Text(DisplayText.categoryLabel(c)) },
+                                    shape = RoundedCornerShape(12.dp),
+                                    colors = FilterChipDefaults.filterChipColors(
+                                        selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                    ),
+                                    modifier = Modifier
+                                        .height(40.dp)
+                                        .testTag(InventoryTestTags.WIZARD_CATEGORY_CHIP_PREFIX + c),
+                                )
+                            }
+                        }
                     }
+                    AddPlantWizardModel.filterProfiles(profiles, speciesQuery, speciesCategory)
+                        .forEach { profile ->
+                            Tile(
+                                label = speciesName(profile),
+                                tag = InventoryTestTags.WIZARD_SPECIES_TILE_PREFIX + profile.id,
+                                leadingIcon = {
+                                    Image(
+                                        painter = painterResource(WizardIcons.speciesIconRes(profile.id)),
+                                        contentDescription = null,
+                                        modifier = Modifier.size(48.dp),
+                                    )
+                                },
+                            ) {
+                                selectedProfile = profile
+                                step = 2
+                            }
+                        }
                 }
 
                 2 -> AddPlantWizardModel.LOCATION_PRESETS.forEach { preset ->

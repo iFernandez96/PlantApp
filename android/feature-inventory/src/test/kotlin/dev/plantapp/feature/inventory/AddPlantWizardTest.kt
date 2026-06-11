@@ -10,6 +10,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextInput
 import dev.plantapp.domain.model.Container
 import dev.plantapp.domain.model.GardenSpace
 import dev.plantapp.domain.model.PlantProfile
@@ -108,6 +109,44 @@ class AddPlantWizardTest {
         assertEquals(null, form.lastWateredAt)
         assertTrue("containerId resolved", form.containerId.isNotBlank())
         assertTrue("gardenSpaceId resolved", form.gardenSpaceId.isNotBlank())
+    }
+
+    @Test
+    fun `species step filters tiles by search text`() {
+        composeRule.setContent {
+            AddPlantWizard(
+                profiles = profiles,
+                gardenSpaces = emptyList(),
+                containers = emptyList(),
+                onCreateGardenSpace = { _, _ -> },
+                onCreateContainer = { _, _, _, _ -> },
+                onSubmit = {},
+            )
+        }
+        composeRule.onNodeWithTag("wizard_species_search").performTextInput("toma")
+        composeRule.onNodeWithTag(InventoryTestTags.WIZARD_SPECIES_TILE_PREFIX + "solanum-lycopersicum").assertIsDisplayed()
+        composeRule.onNodeWithTag(InventoryTestTags.WIZARD_SPECIES_TILE_PREFIX + "ocimum-basilicum").assertDoesNotExist()
+    }
+
+    @Test
+    fun `category chip filters tiles to that category`() {
+        val pickerProfiles = listOf(
+            PlantProfile("epipremnum-aureum", "Epipremnum aureum", listOf("Pothos"), "houseplant"),
+            PlantProfile("ocimum-basilicum", "Ocimum basilicum", listOf("Basil"), "herb"),
+        )
+        composeRule.setContent {
+            AddPlantWizard(
+                profiles = pickerProfiles,
+                gardenSpaces = emptyList(),
+                containers = emptyList(),
+                onCreateGardenSpace = { _, _ -> },
+                onCreateContainer = { _, _, _, _ -> },
+                onSubmit = {},
+            )
+        }
+        composeRule.onNodeWithTag(InventoryTestTags.WIZARD_CATEGORY_CHIP_PREFIX + "houseplant").performClick()
+        composeRule.onNodeWithTag(InventoryTestTags.WIZARD_SPECIES_TILE_PREFIX + "epipremnum-aureum").assertIsDisplayed()
+        composeRule.onNodeWithTag(InventoryTestTags.WIZARD_SPECIES_TILE_PREFIX + "ocimum-basilicum").assertDoesNotExist()
     }
 
     @Test

@@ -32,6 +32,17 @@ class DisplayTextTest {
     }
 
     @Test
+    fun categoryLabelsAreBeginnerFriendly() {
+        assertEquals("Houseplants", DisplayText.categoryLabel("houseplant"))
+        assertEquals("Flowers", DisplayText.categoryLabel("ornamental"))
+    }
+
+    @Test
+    fun unknownCategoryFallsBackToDeSluggedCapitalised() {
+        assertEquals("Mystery kind", DisplayText.categoryLabel("mystery-kind"))
+    }
+
+    @Test
     fun friendlyErrorUsesTheFallbackAndNeverTheExceptionMessage() {
         val msg = DisplayText.friendlyError(RuntimeException("raw http://10.0.0.179"), "Friendly fallback.")
         assertEquals("Friendly fallback.", msg)

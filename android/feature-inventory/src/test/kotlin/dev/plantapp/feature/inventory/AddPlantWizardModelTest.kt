@@ -1,5 +1,6 @@
 package dev.plantapp.feature.inventory
 
+import dev.plantapp.domain.model.PlantProfile
 import dev.plantapp.feature.inventory.addplant.AddPlantWizardModel
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -60,6 +61,44 @@ class AddPlantWizardModelTest {
         AddPlantWizardModel.LOCATION_PRESETS.forEach { preset ->
             check(preset.kind in allowed) { "preset '${preset.label}' sends invalid kind '${preset.kind}'" }
         }
+    }
+
+    private val pickerProfiles = listOf(
+        PlantProfile("solanum-lycopersicum", "Solanum lycopersicum", listOf("Tomato"), "vegetable"),
+        PlantProfile("ocimum-basilicum", "Ocimum basilicum", listOf("Basil"), "herb"),
+        PlantProfile("epipremnum-aureum", "Epipremnum aureum", listOf("Pothos"), "houseplant"),
+        PlantProfile("mentha-spicata", "Mentha spicata", listOf("Mint", "Spearmint"), "herb"),
+    )
+
+    @Test
+    fun filterProfilesBlankQueryNullCategoryReturnsAllSortedByDisplayName() {
+        val result = AddPlantWizardModel.filterProfiles(pickerProfiles, "", null)
+        assertEquals(listOf("Basil", "Mint", "Pothos", "Tomato"), result.map { it.commonNames.first() })
+    }
+
+    @Test
+    fun filterProfilesMatchesCommonNameCaseInsensitively() {
+        val result = AddPlantWizardModel.filterProfiles(pickerProfiles, "toma", null)
+        assertEquals(listOf("solanum-lycopersicum"), result.map { it.id })
+    }
+
+    @Test
+    fun filterProfilesMatchesScientificName() {
+        val result = AddPlantWizardModel.filterProfiles(pickerProfiles, "epipremnum", null)
+        assertEquals(listOf("epipremnum-aureum"), result.map { it.id })
+    }
+
+    @Test
+    fun filterProfilesCategoryKeepsOnlyThatCategory() {
+        val result = AddPlantWizardModel.filterProfiles(pickerProfiles, "", "herb")
+        assertEquals(listOf("ocimum-basilicum", "mentha-spicata"), result.map { it.id })
+    }
+
+    @Test
+    fun filterProfilesQueryAndCategoryCompose() {
+        val result = AddPlantWizardModel.filterProfiles(pickerProfiles, "mint", "herb")
+        assertEquals(listOf("mentha-spicata"), result.map { it.id })
+        assertEquals(emptyList<String>(), AddPlantWizardModel.filterProfiles(pickerProfiles, "mint", "vegetable").map { it.id })
     }
 
     @Test

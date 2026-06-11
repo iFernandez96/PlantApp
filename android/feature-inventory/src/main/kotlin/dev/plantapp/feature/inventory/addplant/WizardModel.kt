@@ -1,5 +1,7 @@
 package dev.plantapp.feature.inventory.addplant
 
+import dev.plantapp.domain.model.PlantProfile
+
 /** A pot size the way pots are SOLD (the user never sees litres). [volumeLiters] feeds the care
  *  engine (factor = clamp(vol / recommendedMin, .5, 1.5)). */
 data class PotSizeOption(val label: String, val volumeLiters: Double)
@@ -31,6 +33,31 @@ object AddPlantWizardModel {
     )
 
     // Icons are custom per-species vector drawables (see WizardIcons) — no emoji.
+
+    /** Friendly browse order for the species-picker category chips. Only categories that are
+     *  actually present in the loaded catalog get a chip. */
+    val CATEGORY_ORDER: List<String> = listOf(
+        "houseplant", "herb", "vegetable", "fruit", "berry",
+        "ornamental", "succulent", "root", "vine", "other",
+    )
+
+    /** Pure picker filter: case-insensitive substring match on any common name or the
+     *  scientific name; optional category; result sorted by display name. */
+    fun filterProfiles(
+        profiles: List<PlantProfile>,
+        query: String,
+        category: String?,
+    ): List<PlantProfile> {
+        val q = query.trim()
+        return profiles
+            .filter { category == null || it.category == category }
+            .filter {
+                q.isEmpty() ||
+                    it.commonNames.any { n -> n.contains(q, ignoreCase = true) } ||
+                    it.scientificName.contains(q, ignoreCase = true)
+            }
+            .sortedBy { (it.commonNames.firstOrNull() ?: it.scientificName).lowercase() }
+    }
 
     // Hidden defaults the novice never sets (the engine / back end still need them):
     const val DEFAULT_MATERIAL = "plastic"
