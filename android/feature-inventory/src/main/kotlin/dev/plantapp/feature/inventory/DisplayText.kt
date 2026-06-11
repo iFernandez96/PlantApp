@@ -1,8 +1,17 @@
 package dev.plantapp.feature.inventory
 
+import dev.plantapp.domain.SessionExpiredException
+
 /** Plain-language labels for engine vocabulary (task kinds mirror the DB check constraint in
  *  supabase/migrations/0003). Beginner-first copy: no horticulture or engine jargon. */
 object DisplayText {
+    /** Screen-safe error copy. Names session expiry; otherwise uses the screen's fallback.
+     *  NEVER surfaces e.message — raw exception text (HTTP codes, LAN IPs) is not for users. */
+    fun friendlyError(e: Throwable, fallback: String): String = when (e) {
+        is SessionExpiredException -> "Your session ended. Please sign in again."
+        else -> fallback
+    }
+
     /** "water" -> "Water", "repot" -> "Move to a bigger pot", etc. */
     fun taskKindLabel(kind: String): String = when (kind) {
         "water" -> "Water"

@@ -70,7 +70,7 @@ fun PlantListScreen(
                         modifier = Modifier.testTag("list_signed_out"),
                     )
                 is PlantListUiState.Error ->
-                    Text(text = "Couldn't load plants: ${state.message}")
+                    Text(text = state.message)
                 is PlantListUiState.Content ->
                     LazyColumn(
                         modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp).testTag(InventoryTestTags.PLANT_LIST),

@@ -1,5 +1,6 @@
 package dev.plantapp.feature.inventory
 
+import dev.plantapp.domain.SessionExpiredException
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -28,5 +29,17 @@ class DisplayTextTest {
     @Test
     fun unknownStageFallsBackToDeSluggedCapitalised() {
         assertEquals("Odd stage", DisplayText.growthStageLabel("odd-stage"))
+    }
+
+    @Test
+    fun friendlyErrorUsesTheFallbackAndNeverTheExceptionMessage() {
+        val msg = DisplayText.friendlyError(RuntimeException("raw http://10.0.0.179"), "Friendly fallback.")
+        assertEquals("Friendly fallback.", msg)
+    }
+
+    @Test
+    fun friendlyErrorNamesSessionExpiry() {
+        val msg = DisplayText.friendlyError(SessionExpiredException(), "Friendly fallback.")
+        assertEquals("Your session ended. Please sign in again.", msg)
     }
 }

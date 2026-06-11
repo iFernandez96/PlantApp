@@ -90,6 +90,18 @@ class PlantListViewModelTest {
     }
 
     @Test
+    fun loadErrorShowsFriendlyCopyNotRawExceptionText() = runTest(dispatcher) {
+        val repo = MutablePlantsRepo().apply { failure = RuntimeException("HTTP 500 http://10.0.0.179:3000/plants") }
+        val vm = PlantListViewModel(repo, reminderSync(repo))
+        advanceUntilIdle()
+        val state = vm.state.value
+        assertTrue("error state expected", state is PlantListUiState.Error)
+        val message = (state as PlantListUiState.Error).message
+        assertFalse("raw exception text must not reach the UI", message.contains("10.0.0.179"))
+        assertEquals("We couldn't load your plants. Check your connection and try again.", message)
+    }
+
+    @Test
     fun refreshAfterErrorShowsLoadingThenResult() = runTest(dispatcher) {
         val repo = MutablePlantsRepo().apply { failure = RuntimeException("boom") }
         val vm = PlantListViewModel(repo, reminderSync(repo))

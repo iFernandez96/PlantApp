@@ -53,7 +53,7 @@ class PlantListViewModel @Inject constructor(
             } catch (e: Exception) {
                 when (e) {
                     is SessionExpiredException -> PlantListUiState.SignedOut
-                    else -> PlantListUiState.Error(e.message ?: "unknown error")
+                    else -> PlantListUiState.Error(DisplayText.friendlyError(e, "We couldn't load your plants. Check your connection and try again."))
                 }
             }
         }
@@ -84,7 +84,7 @@ class AddPlantViewModel @Inject constructor(
                 _gardenSpaces.value = repository.getGardenSpaces()
                 _containers.value = repository.getContainers()
             } catch (e: Exception) {
-                _error.value = e.message ?: "Could not load add-plant options"
+                _error.value = DisplayText.friendlyError(e, "We couldn't load the plant choices. Check your connection and try again.")
             }
         }
     }
@@ -95,7 +95,7 @@ class AddPlantViewModel @Inject constructor(
                 val gs = repository.createGardenSpace(name, kind)
                 _gardenSpaces.value = _gardenSpaces.value + gs
             } catch (e: Exception) {
-                _error.value = e.message ?: "Could not create garden space"
+                _error.value = DisplayText.friendlyError(e, "We couldn't save your space. Please try again.")
             }
         }
     }
@@ -106,7 +106,7 @@ class AddPlantViewModel @Inject constructor(
                 val c = repository.createContainer(name, volumeLiters, material, drainage)
                 _containers.value = _containers.value + c
             } catch (e: Exception) {
-                _error.value = e.message ?: "Could not create container"
+                _error.value = DisplayText.friendlyError(e, "We couldn't save your pot. Please try again.")
             }
         }
     }
@@ -125,7 +125,7 @@ class AddPlantViewModel @Inject constructor(
                 )
                 onSaved(result.plant.id)
             } catch (e: Exception) {
-                _error.value = e.message ?: "Could not add plant"
+                _error.value = DisplayText.friendlyError(e, "We couldn't add your plant. Please try again.")
             }
         }
     }
@@ -202,7 +202,7 @@ class PlantDetailViewModel @Inject constructor(
                     )
                 }
             } catch (e: Exception) {
-                PlantDetailUiState.Error(e.message ?: "unknown error")
+                PlantDetailUiState.Error(DisplayText.friendlyError(e, "We couldn't load this plant. Check your connection and try again."))
             }
         }
     }

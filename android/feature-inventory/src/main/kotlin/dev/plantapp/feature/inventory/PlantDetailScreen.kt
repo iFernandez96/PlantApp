@@ -54,7 +54,7 @@ fun PlantDetailScreen(
                 }
             is PlantDetailUiState.Error ->
                 Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
-                    Text("Couldn't load plant: ${state.message}")
+                    Text(state.message)
                 }
             is PlantDetailUiState.Content ->
                 Column(
