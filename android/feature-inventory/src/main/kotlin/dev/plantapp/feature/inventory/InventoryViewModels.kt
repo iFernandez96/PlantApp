@@ -142,22 +142,29 @@ class SignInViewModel @Inject constructor(
 
     fun requestCode(email: String) {
         viewModelScope.launch {
+            _state.update { it.copy(busy = true, error = null) }
             try {
                 auth.requestOtp(email)
-                _state.update { it.copy(codeSent = true, error = null) }
+                _state.update { it.copy(codeSent = true, busy = false) }
             } catch (e: Exception) {
-                _state.update { it.copy(error = e.message ?: "Could not send code") }
+                // Fixed copy only — never surface raw exception text to the sign-in UI.
+                _state.update {
+                    it.copy(busy = false, error = "We couldn't send the code. Check the email address and try again.")
+                }
             }
         }
     }
 
     fun verify(email: String, code: String, onSignedIn: () -> Unit) {
         viewModelScope.launch {
+            _state.update { it.copy(busy = true, error = null) }
             try {
                 auth.verifyOtp(email, code)
                 onSignedIn()
             } catch (e: Exception) {
-                _state.update { it.copy(error = e.message ?: "Invalid code") }
+                _state.update {
+                    it.copy(busy = false, error = "That code didn't work. Check the digits and try again.")
+                }
             }
         }
     }

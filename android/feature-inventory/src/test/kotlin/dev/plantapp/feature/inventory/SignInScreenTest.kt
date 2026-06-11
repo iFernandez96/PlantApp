@@ -1,6 +1,8 @@
 package dev.plantapp.feature.inventory
 
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -54,6 +56,25 @@ class SignInScreenTest {
         composeRule.onNodeWithTag(InventoryTestTags.SIGNIN_VERIFY_BUTTON).performClick()
         assertEquals("a@b.test", capturedEmail)
         assertEquals("123456", capturedCode)
+    }
+
+    @Test
+    fun `send button is disabled while the email is blank`() {
+        composeRule.setContent {
+            SignInScreen(codeSent = false, error = null, onRequestCode = {}, onVerify = { _, _ -> })
+        }
+        composeRule.onNodeWithTag(InventoryTestTags.SIGNIN_SEND_CODE_BUTTON).assertIsNotEnabled()
+        composeRule.onNodeWithTag(InventoryTestTags.FIELD_SIGNIN_EMAIL).performTextInput("a@b.test")
+        composeRule.onNodeWithTag(InventoryTestTags.SIGNIN_SEND_CODE_BUTTON).assertIsEnabled()
+    }
+
+    @Test
+    fun `busy disables the send button even with an email entered`() {
+        composeRule.setContent {
+            SignInScreen(codeSent = false, error = null, busy = true, onRequestCode = {}, onVerify = { _, _ -> })
+        }
+        composeRule.onNodeWithTag(InventoryTestTags.FIELD_SIGNIN_EMAIL).performTextInput("a@b.test")
+        composeRule.onNodeWithTag(InventoryTestTags.SIGNIN_SEND_CODE_BUTTON).assertIsNotEnabled()
     }
 
     @Test

@@ -138,6 +138,7 @@ private fun PlantAppNavGraph(
             SignInScreen(
                 codeSent = state.codeSent,
                 error = state.error,
+                busy = state.busy,
                 onRequestCode = vm::requestCode,
                 onVerify = { email, code ->
                     vm.verify(email, code) {

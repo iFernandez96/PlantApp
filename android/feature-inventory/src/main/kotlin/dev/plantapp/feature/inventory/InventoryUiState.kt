@@ -35,6 +35,8 @@ sealed interface PlantDetailUiState {
 data class SignInUiState(
     val codeSent: Boolean = false,
     val error: String? = null,
+    /** True while a send-code or verify request is in flight (disables the buttons). */
+    val busy: Boolean = false,
 )
 
 /** Collected add-plant form input (ids for Slice 1; richer selectors are a later slice). */
