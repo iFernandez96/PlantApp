@@ -79,7 +79,9 @@ function assertAllValid(advisories: Array<Record<string, unknown>>) {
 }
 
 describe('Slice 2 API — GET /plants/:id/advisories', () => {
-  it('container-size: passion fruit in a 19L container surfaces a high container-size advisory citing 95 and 190', async () => {
+  // Ideal range comes from the profile data: 95–190 L at Slice 2 seed, 95–150 L since the
+  // W2 batch-3 enrichment (0009) updated passiflora-edulis to its cited values.
+  it('container-size: passion fruit in a 19L container surfaces a high container-size advisory citing 95 and 150', async () => {
     const a = users[0]!;
     const space = await createSpace(a.token);
     const container = await createContainer(a.token, 19);
@@ -93,7 +95,7 @@ describe('Slice 2 API — GET /plants/:id/advisories', () => {
     expect(cs).toBeTruthy();
     expect(cs!.severity).toBe('high');
     expect(cs!.message).toContain('95');
-    expect(cs!.message).toContain('190');
+    expect(cs!.message).toContain('150');
   });
 
   it('support: passion fruit (requiresSupport) without supportRecorded surfaces a support advisory', async () => {

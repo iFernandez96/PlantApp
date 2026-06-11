@@ -13,7 +13,7 @@ afterAll(async () => {
 });
 
 // Grows with each W2 seed batch (batch 2..4 update this constant).
-const EXPECTED_PROFILE_COUNT = 38;
+const EXPECTED_PROFILE_COUNT = 51;
 
 const BATCH1_IDS = [
   'allium-fistulosum', 'allium-sativum', 'beta-vulgaris', 'beta-vulgaris-cicla',
@@ -31,6 +31,13 @@ const BATCH2_IDS = [
   'ribes-rubrum', 'ribes-uva-crispa', 'rubus-fruticosus', 'rubus-idaeus',
   'salvia-officinalis', 'salvia-rosmarinus', 'thymus-vulgaris',
   'vaccinium-corymbosum',
+];
+
+const BATCH3_IDS = [
+  'actinidia-deliciosa', 'aloe-vera', 'citrus-limon', 'crassula-ovata',
+  'echeveria-elegans', 'ficus-carica', 'haworthia-attenuata', 'malus-domestica',
+  'passiflora-edulis', 'physalis-philadelphica', 'prunus-avium',
+  'prunus-domestica', 'prunus-persica', 'pyrus-communis', 'vitis-vinifera',
 ];
 
 describe('W2 catalog batch 1 — vegetables + roots', () => {
@@ -89,6 +96,34 @@ describe('W2 catalog batch 2 — herbs + berries', () => {
     expect(rows).toHaveLength(2);
     expect(rows[0]).toMatchObject({ id: 'fragaria-x-ananassa', category: 'berry' });
     expect(rows[1]).toMatchObject({ id: 'ocimum-basilicum', category: 'herb' });
+    expect(rows.every((r) => r.version >= 2)).toBe(true);
+  });
+});
+
+describe('W2 catalog batch 3 — fruit, vines, succulents', () => {
+  it('all 15 batch-3 profiles are present', async () => {
+    const { rows } = await client.query(
+      'select id from public.plant_profiles where id = any($1) order by id',
+      [BATCH3_IDS],
+    );
+    expect(rows.map((r) => r.id)).toEqual(BATCH3_IDS);
+  });
+
+  it('every batch-3 profile carries citations and a version', async () => {
+    const { rows } = await client.query(
+      "select id from public.plant_profiles where id = any($1) and (source is null or jsonb_array_length(source) = 0 or version < 1)",
+      [BATCH3_IDS],
+    );
+    expect(rows).toEqual([]);
+  });
+
+  it('passion fruit and tomatillo were enriched in place, not duplicated', async () => {
+    const { rows } = await client.query(
+      "select id, category, version, pollination_partners_required from public.plant_profiles where id in ('passiflora-edulis','physalis-philadelphica') order by id",
+    );
+    expect(rows).toHaveLength(2);
+    expect(rows[0]).toMatchObject({ id: 'passiflora-edulis', category: 'fruit' });
+    expect(rows[1]).toMatchObject({ id: 'physalis-philadelphica', category: 'fruit', pollination_partners_required: 2 });
     expect(rows.every((r) => r.version >= 2)).toBe(true);
   });
 });
