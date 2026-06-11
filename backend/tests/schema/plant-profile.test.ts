@@ -98,6 +98,24 @@ const seedFixtures = [
       version: 1,
     },
   },
+  {
+    species: 'pothos (houseplant category, W2 Gate B)',
+    profile: {
+      id: 'epipremnum-aureum',
+      scientificName: 'Epipremnum aureum',
+      commonNames: ['Pothos', "Devil's ivy"],
+      category: 'houseplant',
+      growthHabit: 'trailing',
+      requiresSupport: false,
+      selfFruitful: false,
+      wateringProfile: { baseIntervalDays: 9, dryingTolerance: 'high' },
+      feedingProfile: { baseIntervalDays: 30 },
+      containerProfile: { recommendedMinLiters: 4 },
+      lightProfile: { targetSunHours: 4 },
+      temperatureProfile: { frostSensitive: true },
+      version: 1,
+    },
+  },
 ];
 
 describe('plant-profile.schema.json — test #1: accepts each seed profile', () => {

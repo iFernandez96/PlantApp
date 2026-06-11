@@ -24,7 +24,7 @@
     "commonNames": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
     "category": {
       "type": "string",
-      "enum": ["fruit", "vegetable", "herb", "ornamental", "vine", "root", "berry", "succulent", "other"]
+      "enum": ["fruit", "vegetable", "herb", "ornamental", "vine", "root", "berry", "succulent", "houseplant", "other"]
     },
     "growthHabit": {
       "type": "string",
