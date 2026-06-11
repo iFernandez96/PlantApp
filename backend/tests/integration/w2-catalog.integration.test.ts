@@ -13,7 +13,7 @@ afterAll(async () => {
 });
 
 // Grows with each W2 seed batch (batch 2..4 update this constant).
-const EXPECTED_PROFILE_COUNT = 20;
+const EXPECTED_PROFILE_COUNT = 38;
 
 const BATCH1_IDS = [
   'allium-fistulosum', 'allium-sativum', 'beta-vulgaris', 'beta-vulgaris-cicla',
@@ -21,6 +21,16 @@ const BATCH1_IDS = [
   'cucumis-sativus', 'cucurbita-pepo', 'daucus-carota', 'lactuca-sativa',
   'phaseolus-vulgaris', 'pisum-sativum', 'raphanus-sativus',
   'solanum-lycopersicum', 'spinacia-oleracea',
+];
+
+const BATCH2_IDS = [
+  'allium-schoenoprasum', 'anethum-graveolens', 'artemisia-dracunculus',
+  'coriandrum-sativum', 'foeniculum-vulgare', 'fragaria-x-ananassa',
+  'lavandula-angustifolia', 'melissa-officinalis', 'mentha-spicata',
+  'ocimum-basilicum', 'origanum-vulgare', 'petroselinum-crispum',
+  'ribes-rubrum', 'ribes-uva-crispa', 'rubus-fruticosus', 'rubus-idaeus',
+  'salvia-officinalis', 'salvia-rosmarinus', 'thymus-vulgaris',
+  'vaccinium-corymbosum',
 ];
 
 describe('W2 catalog batch 1 — vegetables + roots', () => {
@@ -52,5 +62,33 @@ describe('W2 catalog batch 1 — vegetables + roots', () => {
   it('catalog total matches the seeded batches', async () => {
     const { rows } = await client.query('select count(*)::int as n from public.plant_profiles');
     expect(rows[0].n).toBe(EXPECTED_PROFILE_COUNT);
+  });
+});
+
+describe('W2 catalog batch 2 — herbs + berries', () => {
+  it('all 20 batch-2 profiles are present', async () => {
+    const { rows } = await client.query(
+      'select id from public.plant_profiles where id = any($1) order by id',
+      [BATCH2_IDS],
+    );
+    expect(rows.map((r) => r.id)).toEqual(BATCH2_IDS);
+  });
+
+  it('every batch-2 profile carries citations and a version', async () => {
+    const { rows } = await client.query(
+      "select id from public.plant_profiles where id = any($1) and (source is null or jsonb_array_length(source) = 0 or version < 1)",
+      [BATCH2_IDS],
+    );
+    expect(rows).toEqual([]);
+  });
+
+  it('strawberry and basil were enriched in place, not duplicated', async () => {
+    const { rows } = await client.query(
+      "select id, category, version from public.plant_profiles where id in ('fragaria-x-ananassa','ocimum-basilicum') order by id",
+    );
+    expect(rows).toHaveLength(2);
+    expect(rows[0]).toMatchObject({ id: 'fragaria-x-ananassa', category: 'berry' });
+    expect(rows[1]).toMatchObject({ id: 'ocimum-basilicum', category: 'herb' });
+    expect(rows.every((r) => r.version >= 2)).toBe(true);
   });
 });
