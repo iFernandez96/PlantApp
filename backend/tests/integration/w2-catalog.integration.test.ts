@@ -13,7 +13,7 @@ afterAll(async () => {
 });
 
 // Grows with each W2 seed batch (batch 2..4 update this constant).
-const EXPECTED_PROFILE_COUNT = 51;
+const EXPECTED_PROFILE_COUNT = 75;
 
 const BATCH1_IDS = [
   'allium-fistulosum', 'allium-sativum', 'beta-vulgaris', 'beta-vulgaris-cicla',
@@ -38,6 +38,17 @@ const BATCH3_IDS = [
   'echeveria-elegans', 'ficus-carica', 'haworthia-attenuata', 'malus-domestica',
   'passiflora-edulis', 'physalis-philadelphica', 'prunus-avium',
   'prunus-domestica', 'prunus-persica', 'pyrus-communis', 'vitis-vinifera',
+];
+
+const BATCH4_IDS = [
+  'aglaonema-commutatum', 'antirrhinum-majus', 'begonia-semperflorens',
+  'chlorophytum-comosum', 'cosmos-bipinnatus', 'dahlia-pinnata',
+  'dracaena-trifasciata', 'epipremnum-aureum', 'ficus-elastica',
+  'helianthus-annuus', 'impatiens-walleriana', 'lobularia-maritima',
+  'monstera-deliciosa', 'pelargonium-x-hortorum', 'petunia-x-hybrida',
+  'philodendron-hederaceum', 'rosa-x-hybrida', 'rudbeckia-hirta',
+  'salvia-splendens', 'spathiphyllum-wallisii', 'tagetes-patula',
+  'viola-x-wittrockiana', 'zamioculcas-zamiifolia', 'zinnia-elegans',
 ];
 
 describe('W2 catalog batch 1 — vegetables + roots', () => {
@@ -125,5 +136,38 @@ describe('W2 catalog batch 3 — fruit, vines, succulents', () => {
     expect(rows[0]).toMatchObject({ id: 'passiflora-edulis', category: 'fruit' });
     expect(rows[1]).toMatchObject({ id: 'physalis-philadelphica', category: 'fruit', pollination_partners_required: 2 });
     expect(rows.every((r) => r.version >= 2)).toBe(true);
+  });
+});
+
+describe('W2 catalog batch 4 — ornamentals + houseplants (completes the 75)', () => {
+  it('all 24 batch-4 profiles are present', async () => {
+    const { rows } = await client.query(
+      'select id from public.plant_profiles where id = any($1) order by id',
+      [BATCH4_IDS],
+    );
+    expect(rows.map((r) => r.id)).toEqual(BATCH4_IDS);
+  });
+
+  it('every batch-4 profile carries citations and a version', async () => {
+    const { rows } = await client.query(
+      "select id from public.plant_profiles where id = any($1) and (source is null or jsonb_array_length(source) = 0 or version < 1)",
+      [BATCH4_IDS],
+    );
+    expect(rows).toEqual([]);
+  });
+
+  it('the houseplant category (Gate B) is live with 9 species', async () => {
+    const { rows } = await client.query(
+      "select count(*)::int as n from public.plant_profiles where category = 'houseplant'",
+    );
+    expect(rows[0].n).toBe(9);
+  });
+
+  it('the full 75-plant pilot catalog is seeded and cited', async () => {
+    const { rows } = await client.query(
+      "select count(*)::int as total, count(*) filter (where source is not null and jsonb_array_length(source) > 0)::int as cited from public.plant_profiles",
+    );
+    expect(rows[0].total).toBe(75);
+    expect(rows[0].cited).toBe(75);
   });
 });
